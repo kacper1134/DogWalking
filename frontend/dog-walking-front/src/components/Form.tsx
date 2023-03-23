@@ -23,7 +23,7 @@ const Form: React.FC<CardProps> = ( {width, height, borderRadius, children, px, 
         borderRadius={borderRadius}
         boxShadow="0 4px 4px 0 rgba(0,0,0,0.25)"
         background="linear-gradient(90deg, hsla(285, 42%, 33%, 1) 0%, hsla(333, 54%, 51%, 1) 100%);"
-        opacity="1">
+        opacity="0.95">
             {children}
         </Box>
     );
