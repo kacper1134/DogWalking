@@ -1,7 +1,7 @@
 import { Flex, Text } from "@chakra-ui/react";
 import { Route, Routes } from "react-router-dom";
-import { ProtectedRoute } from "./components/Auth/ProtectedRoute";
-import { UnprotectedRoute } from "./components/Auth/UnprotectedRoute";
+import { ProtectedRoute } from "./components/Auth/Routes/ProtectedRoute";
+import { UnprotectedRoute } from "./components/Auth/Routes/UnprotectedRoute";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 
