@@ -1,13 +1,29 @@
-import { Flex, Text } from "@chakra-ui/react";
-import { Route, Routes } from "react-router-dom";
+import { Flex, Spacer } from "@chakra-ui/react";
+import { Fragment } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { Footer } from "./components/PageLayout/Footer/Footer";
+import { Navbar } from "./components/PageLayout/Navbar/Navbar";
 import { ProtectedRoute } from "./components/Auth/Routes/ProtectedRoute";
 import { UnprotectedRoute } from "./components/Auth/Routes/UnprotectedRoute";
+import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 
 const App = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isNotLoginOrRegisterPage =
+    currentPath !== "/login" && currentPath !== "/register";
+
   return (
-    <Flex>
+    <Flex
+      flexFlow="column"
+      minW="full"
+      minH="100vh"
+      width={0}
+      
+    >
+      {isNotLoginOrRegisterPage && <Navbar />}
       <Routes>
         <Route
           path="/login"
@@ -29,11 +45,17 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Text>Hello</Text>
+              <HomePage />
             </ProtectedRoute>
           }
         />
       </Routes>
+      {isNotLoginOrRegisterPage && (
+        <Fragment>
+          <Spacer />
+          <Footer />
+        </Fragment>
+      )}
     </Flex>
   );
 };

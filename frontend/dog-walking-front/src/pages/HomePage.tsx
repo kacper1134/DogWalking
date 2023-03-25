@@ -1,5 +1,5 @@
-import {Text} from "@chakra-ui/react";
+import { Home } from "../components/Home/Home"
 
 export const HomePage = () => {
-    return <Text>HOME PAGE</Text>
+    return <Home />
 }

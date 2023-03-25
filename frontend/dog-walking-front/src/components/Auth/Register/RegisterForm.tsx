@@ -172,6 +172,7 @@ const NameInput = ({
           variant="filled"
           fontSize={fontSize}
           onChange={changeFirstNameHandler}
+          textStyle="p"
         />
         <FormHelperText>{firstNameErrorMessage}</FormHelperText>
       </FormControl>
@@ -184,8 +185,9 @@ const NameInput = ({
           variant="filled"
           fontSize={fontSize}
           onChange={changeLastNameHandler}
+          textStyle="p"
         />
-        <FormHelperText>{lastNameErrorMessage}</FormHelperText>
+        <FormHelperText textStyle="p">{lastNameErrorMessage}</FormHelperText>
       </FormControl>
     </HStack>
   );
@@ -228,7 +230,7 @@ const InputWithIcon = ({
     <FormControl>
       <InputGroup>
         <InputLeftElement>
-          <Icon as={icon} fontSize={fontSize} />
+          <Icon as={icon} fontSize={fontSize}  />
         </InputLeftElement>
 
         <Input
@@ -239,6 +241,7 @@ const InputWithIcon = ({
           variant="filled"
           fontSize={fontSize}
           onChange={changeInputHandler}
+          textStyle="p"
         ></Input>
         {type === "password" && (
           <InputRightElement width="4.5rem">
@@ -248,7 +251,7 @@ const InputWithIcon = ({
           </InputRightElement>
         )}
       </InputGroup>
-      <FormHelperText>{errorMessage}</FormHelperText>
+      <FormHelperText textStyle="p">{errorMessage}</FormHelperText>
     </FormControl>
   );
 };
