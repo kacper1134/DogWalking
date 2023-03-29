@@ -10,6 +10,6 @@ export const UnprotectedRoute = ({children} : UnprotectedRouteProps): JSX.Elemen
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
-  if (isAuthenticated) return <Navigate to="/" />;
+  if (isAuthenticated) return <Navigate to="/home" />;
   return children;
 };

@@ -38,7 +38,7 @@ export const Navbar = () => {
       <Image
         src="/DogWalking.png"
         h="80%"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/home")}
         cursor="pointer"
       />
       {!isDropdown && (
@@ -61,7 +61,7 @@ type Link = {
 const LINKS: Link[] = [
   {
     text: "home",
-    path: "/",
+    path: "/home",
   },
   {
     text: "walks",

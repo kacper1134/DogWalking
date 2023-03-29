@@ -8,6 +8,7 @@ import { UnprotectedRoute } from "./components/Auth/Routes/UnprotectedRoute";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import AboutPage from "./pages/AboutPage";
 
 const App = () => {
   const location = useLocation();
@@ -16,13 +17,7 @@ const App = () => {
     currentPath !== "/login" && currentPath !== "/register";
 
   return (
-    <Flex
-      flexFlow="column"
-      minW="full"
-      minH="100vh"
-      width={0}
-      
-    >
+    <Flex flexFlow="column" minW="full" minH="100vh" width={0} bg="white">
       {isNotLoginOrRegisterPage && <Navbar />}
       <Routes>
         <Route
@@ -42,7 +37,15 @@ const App = () => {
           }
         />
         <Route
-          path="/"
+          path="/about"
+          element={
+            <ProtectedRoute>
+              <AboutPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/home"
           element={
             <ProtectedRoute>
               <HomePage />
