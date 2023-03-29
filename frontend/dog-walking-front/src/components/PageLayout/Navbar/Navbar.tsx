@@ -17,8 +17,11 @@ import { JSXElementConstructor, ReactElement } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { iconSize, linkSize, menuHeight } from "./NavbarSizes";
 import { MdOutlinePersonOutline } from "react-icons/md";
+import { IoMdLogOut } from "react-icons/io";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { motion, Variants } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { authActions } from "../../../store/authSlice";
 
 export const Navbar = () => {
   const isDropdown = useBreakpointValue({ base: true, lg: false })!;
@@ -129,10 +132,15 @@ const hoverColor = "purple.100";
 
 const MenuIcons: React.FC<{ isDropdown: boolean }> = ({ isDropdown }) => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  
   const profileHandler = () => {
-    navigate("/profile");
+    navigate("/profile/details");
   };
+
+  const logoutHandler = () => {
+    dispatch(authActions.logout());
+  }
 
   const icons: IconDescription[] = [
     {
@@ -142,6 +150,16 @@ const MenuIcons: React.FC<{ isDropdown: boolean }> = ({ isDropdown }) => {
           as={MdOutlinePersonOutline}
           boxSize={iconSize}
           onClick={profileHandler}
+        />
+      ),
+    },
+    {
+      label: "Logout",
+      icon: (
+        <Icon
+          as={IoMdLogOut}
+          boxSize={iconSize}
+          onClick={logoutHandler}
         />
       ),
     },
