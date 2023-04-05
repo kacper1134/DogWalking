@@ -1,3 +1,4 @@
+using DogWalkingAPI.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DogWalkingAPI.Controllers

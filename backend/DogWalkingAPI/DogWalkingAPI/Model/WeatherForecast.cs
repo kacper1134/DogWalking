@@ -1,4 +1,4 @@
-namespace DogWalkingAPI
+namespace DogWalkingAPI.Model
 {
     public class WeatherForecast
     {
