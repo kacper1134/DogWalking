@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router";
-import ProfileDetails from "../components/Profile/ProfileDetails";
+import ProfileDetails from "../components/Profile/UserSection/ProfileDetails";
 
 const ProfilePage = () => {
   return (

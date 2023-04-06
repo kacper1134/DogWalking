@@ -1,6 +1,7 @@
-import Card from "../Card";
-import { Text, SimpleGrid, VStack } from "@chakra-ui/react";
+import Card from "../../Card";
+import { Text, SimpleGrid, VStack, useBreakpointValue } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { dogCardDescriptionWidth } from "../DogSection/DogDimensions";
 
 export interface Data {
   label: string;
@@ -26,7 +27,7 @@ const DataCard: React.FC<DataCardProps> = ({
 }) => {
   return (
     <Card width={width} height={height} borderRadius={borderRadius}>
-      <VStack p="8px">
+      <VStack p="15px">
         <Text
           textStyle="h2"
           fontSize={`${fontSize - 2}px`}
