@@ -1,6 +1,6 @@
 import { Flex, Spacer } from "@chakra-ui/react";
 import { Fragment } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Footer } from "./components/PageLayout/Footer/Footer";
 import { Navbar } from "./components/PageLayout/Navbar/Navbar";
 import { ProtectedRoute } from "./components/Auth/Routes/ProtectedRoute";
@@ -58,6 +58,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <Navigate replace to="home" />
             </ProtectedRoute>
           }
         />
