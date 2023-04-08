@@ -21,6 +21,16 @@ export const getErrorMessageForEmail = (email: string) => {
   return "";
 };
 
+export const getErrorMessageForPhoneNumber = (phoneNumber: string) => {
+  const phoneNumberExpression: RegExp = /\d{9}/i;
+
+  if (phoneNumber.length === 0) return "";
+  if (!phoneNumberExpression.test(phoneNumber))
+    return "Please provide a properly formatted phone number - 9 numbers";
+
+  return "";
+};
+
 export const getErrorMessageForPassword = (password: string) => {
   if (password === "") return "Password is required.";
   const isValidLength = /^.{8,32}$/;

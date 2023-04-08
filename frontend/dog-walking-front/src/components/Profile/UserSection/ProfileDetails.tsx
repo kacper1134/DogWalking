@@ -23,8 +23,21 @@ import {
   width,
 } from "./ProfileDetailsDimensions";
 import { useState } from "react";
-import UserDetailsEditModal from "./UserDetailsEditModal";
+import UserDetailsEditModal, { UserDetailsType } from "./UserDetailsEditModal";
 import DogCreateEditModal from "../DogSection/DogCreateEditModal";
+
+const MOCK_USER_DETAILS: UserDetailsType = {
+  name: "Kacper",
+  surname: "Kochański",
+  email: "kacper2000@o2.pl",
+  phoneNumber: "",
+  imageUrl:
+    "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
+  username: "kacper1134",
+  gender: null,
+  description:
+    "<p>Hi there! My name is Kacper and I'm a proud dog owner. My furry friend is more than just a pet - they're a loyal companion who brings so much joy and happiness into my life. I'm passionate about providing the best possible care for my dog, including regular exercise, proper nutrition, and plenty of playtime. When I'm not spending time with my dog, I enjoy reading books about dog behavior and training, as well as exploring new parks and trails together.</p>",
+};
 
 const ProfileDetails = () => {
   const columns = useBreakpointValue({
@@ -38,25 +51,33 @@ const ProfileDetails = () => {
 
   const [isCreateDogModalOpen, setIsCreateDogModalOpen] = useState(false);
 
+  const [name, setName] = useState(MOCK_USER_DETAILS.name);
+  const [content, setContent] = useState(MOCK_USER_DETAILS.description);
+  const [surname, setSurname] = useState(MOCK_USER_DETAILS.surname);
+  const [gender, setGender] = useState(MOCK_USER_DETAILS.gender);
+  const [email, setEmail] = useState(MOCK_USER_DETAILS.email);
+  const [phoneNumber, setPhoneNumber] = useState(MOCK_USER_DETAILS.phoneNumber);
+  const [imageUrl, setImageUrl] = useState(MOCK_USER_DETAILS.imageUrl);
+  
   const contactInformation: Data[] = [
     {
       label: "Email Address",
-      value: "kacper2000@o2.pl",
+      value: email,
     },
     {
       label: "Phone Number",
-      value: "300123943",
+      value: phoneNumber,
     },
   ];
 
   const personalDetails: Data[] = [
     {
       label: "Username",
-      value: "kacper1134",
+      value: MOCK_USER_DETAILS.username,
     },
     {
       label: "Gender",
-      value: "Male",
+      value: gender ?? "Not provided",
     },
   ];
 
@@ -94,6 +115,12 @@ const ProfileDetails = () => {
             fontSize={useBreakpointValue(fontSize)!}
             height={useBreakpointValue(cardHeight)!}
             width={useBreakpointValue(cardWidth)!}
+            userDetails={{
+              name: name,
+              surname: surname,
+              imageUrl: imageUrl ?? "",
+              content: content,
+            }}
           />
           <DataCard
             borderRadius={borderRadius}
@@ -142,6 +169,20 @@ const ProfileDetails = () => {
       <UserDetailsEditModal
         isOpen={isEditUserDetailsModalOpen}
         setIsOpen={setIsEditUserDetailsModalOpen}
+        content={content}
+        setContent={setContent}
+        imageUrl={imageUrl}
+        setImageUrl={setImageUrl}
+        name={name}
+        setName={setName}
+        surname={surname}
+        setSurname={setSurname}
+        email={email}
+        setEmail={setEmail}
+        phoneNumber={phoneNumber}
+        setPhoneNumber={setPhoneNumber}
+        gender={gender}
+        setGender={setGender}
       />
       <DogCreateEditModal
         isEdit={false}

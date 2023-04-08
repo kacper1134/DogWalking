@@ -58,7 +58,7 @@ const LabeledData: React.FC<LabeledDataProps> = ({ data, fontSize }) => {
         {data.label}
       </Text>
       <Text as={motion.p} textStyle="p" color="gray.500" textAlign="left">
-        {data.value}
+        {data.value === "" ? "Not provided" : data.value}
       </Text>
     </VStack>
   );
