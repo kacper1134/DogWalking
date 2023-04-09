@@ -61,7 +61,7 @@ const EditImageInput = ({
 
   return (
     <FormControl w="50%" alignSelf="start" pb="20px">
-      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">Profile Image</FormLabel>
+      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">Image</FormLabel>
       <VStack alignItems="start">
         <Avatar
           borderRadius="10px"
@@ -80,7 +80,7 @@ const EditImageInput = ({
             textStyle="p"
             fontSize={detailsModalFontSize}
           >
-            Upload a picture <Icon as={RiImageAddFill} ml="10px" />
+            Upload an image <Icon as={RiImageAddFill} ml="10px" />
           </Button>
         </Avatar>
         <Input

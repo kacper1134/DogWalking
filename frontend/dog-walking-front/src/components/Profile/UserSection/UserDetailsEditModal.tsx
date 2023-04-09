@@ -11,9 +11,7 @@ import {
   InputLeftElement,
   Icon,
   Input,
-  HStack,
   Center,
-  Spacer,
   Select,
   ModalFooter,
   Button,
@@ -183,9 +181,9 @@ const UserDetailsEditModal = ({
       blockScrollOnMount={false}
       scrollBehavior="inside"
     >
-      <ModalOverlay backdropFilter="blur(2px)" />
-      <ModalContent bgColor="primary.500">
-        <ModalHeader bgColor="primary.600" textStyle="p" roundedTop="lg">
+      <ModalOverlay backdropFilter="blur(2px)"/>
+      <ModalContent backgroundColor="primary.700">
+        <ModalHeader textStyle="p" roundedTop="lg">
           Edit user details
         </ModalHeader>
         <ModalCloseButton />
