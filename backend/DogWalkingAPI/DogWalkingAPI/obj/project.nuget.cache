@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "l43JvYKI9shHLuSrOzPCoybSv+YhariZrSd+PcgOG87uQe3P5lATmgpSXna4ILbyWO6UaJpTlRNOkJDzD5HPCQ==",
+  "dgSpecHash": "Xmh4yGtcViQqYgIfmojQRAahqNtphlM0W/SyumatrSu2dnjg11F6hHsuUSWuQ1H0zDZ6oHSzzyBPCveuZrH2oA==",
   "success": true,
-  "projectFilePath": "D:\\repos\\Sem7\\Mobilne\\DogWalking\\backend\\DogWalkingAPI\\DogWalkingAPI\\DogWalkingAPI.csproj",
+  "projectFilePath": "E:\\repos\\DogWalking\\backend\\DogWalkingAPI\\DogWalkingAPI\\DogWalkingAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\macko\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
