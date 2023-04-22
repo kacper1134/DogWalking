@@ -10,6 +10,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import AboutPage from "./pages/AboutPage";
 import ProfilePage from "./pages/ProfilePage";
+import WalksPage from "./pages/WalksPage";
 
 const App = () => {
   const location = useLocation();
@@ -58,6 +59,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/walks/*"
+          element={
+            <ProtectedRoute>
+              <WalksPage></WalksPage>
             </ProtectedRoute>
           }
         />
