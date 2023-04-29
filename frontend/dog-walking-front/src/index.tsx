@@ -2,6 +2,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import App from "./App";
+import "./App.css";
 
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "./theme";
