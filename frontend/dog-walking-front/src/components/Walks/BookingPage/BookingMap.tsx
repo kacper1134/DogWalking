@@ -1,36 +1,38 @@
-import { Center, Heading, Spinner } from "@chakra-ui/react";
+import { Box, Center, HStack, Spinner, Text } from "@chakra-ui/react";
 import {
-  GoogleMap,
-  useLoadScript,
-  MarkerF,
   CircleF,
+  GoogleMap,
+  InfoWindow,
+  MarkerF,
+  useLoadScript,
 } from "@react-google-maps/api";
 import { useEffect } from "react";
 import { useGeolocated } from "react-geolocated";
-import { headerFontSize } from "../WalksDimensions";
-import RadiusSlider from "./RadiusSlider";
+import { fontSmallSize } from "../WalksDimensions";
+import { Walker } from "./WalkerPage";
 
-interface LocalizationMapProps {
-  currentRadius: number;
-  setCurrentRadius: React.Dispatch<React.SetStateAction<number>>;
-  currentCoordinates: {
-    lat: number;
-    lng: number;
-  };
+interface BookingMapProps {
+  currentCoordinates: { lat: number; lng: number };
   setCurrentCoordinates: React.Dispatch<
     React.SetStateAction<{
       lat: number;
       lng: number;
     }>
   >;
+  circleRadius: number;
+  walkers: Walker[];
+  walkerIndex: number;
+  setWalkerIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const LocalizationMap = ({
-  currentRadius,
-  setCurrentRadius,
+const BookingMap = ({
   currentCoordinates,
   setCurrentCoordinates,
-}: LocalizationMapProps) => {
+  circleRadius,
+  walkers,
+  walkerIndex,
+  setWalkerIndex,
+}: BookingMapProps) => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "",
   });
@@ -57,41 +59,6 @@ const LocalizationMap = ({
     );
 
   return (
-    <>
-      <Heading as={Center} py="30px" fontSize={headerFontSize} color="white">
-        Change Your Location
-      </Heading>
-      <RadiusSlider
-        currentRadius={currentRadius}
-        setCurrentRadius={setCurrentRadius}
-        label={"Availability Radius"}
-      />
-      <Map
-        currentCoordinates={currentCoordinates}
-        setCurrentCoordinates={setCurrentCoordinates}
-        circleRadius={currentRadius}
-      />
-    </>
-  );
-};
-
-interface MapProps {
-  currentCoordinates: { lat: number; lng: number };
-  setCurrentCoordinates: React.Dispatch<
-    React.SetStateAction<{
-      lat: number;
-      lng: number;
-    }>
-  >;
-  circleRadius: number;
-}
-
-const Map = ({
-  currentCoordinates,
-  setCurrentCoordinates,
-  circleRadius,
-}: MapProps) => {
-  return (
     <GoogleMap
       zoom={17}
       center={{
@@ -105,6 +72,7 @@ const Map = ({
         maxZoom: 20,
       }}
       mapContainerClassName="map-container"
+      mapContainerStyle={{ height: "90%" }}
     >
       <MarkerF
         position={{
@@ -118,7 +86,36 @@ const Map = ({
             lng: e.latLng?.lng() ?? 10,
           })
         }
+        onClick={() => setWalkerIndex(-1)}
       />
+      {walkers.map((walker, index) => (
+        <MarkerF
+          key={index}
+          position={{ lat: walker.position.lat, lng: walker.position.lng }}
+          icon={{
+            url: require("./walker-marker.svg").default,
+            scaledSize: new google.maps.Size(25, 25),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 0),
+          }}
+          onClick={() => setWalkerIndex(index)}
+        >
+          {walkerIndex === index && (
+            <InfoWindow>
+              <Box w="200px">
+                <HStack pb="10px" fontSize={fontSmallSize}>
+                  <Text fontWeight="bold">Phone number: </Text>
+                  <Text>{walker.phone ?? "Not provided"}</Text>
+                </HStack>
+                <HStack fontSize={fontSmallSize}>
+                  <Text fontWeight="bold">Email: </Text>
+                  <Text>{walker.email}</Text>
+                </HStack>
+              </Box>
+            </InfoWindow>
+          )}
+        </MarkerF>
+      ))}
       <CircleF
         center={{
           lat: currentCoordinates.lat,
@@ -131,4 +128,4 @@ const Map = ({
   );
 };
 
-export default LocalizationMap;
+export default BookingMap;

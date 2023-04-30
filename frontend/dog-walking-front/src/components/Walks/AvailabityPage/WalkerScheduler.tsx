@@ -1,7 +1,7 @@
 import { Center, Heading } from "@chakra-ui/react";
-import { useState } from "react";
 import SchedulerCalendar from "scheduler-calendar";
 import "scheduler-calendar/dist/index.css";
+import { headerFontSize } from "../WalksDimensions";
 
 const sortByStartTime = (
   availabities: { slots: { from: string; to: string }[] }[]
@@ -19,7 +19,7 @@ interface WalkerSchedulerProps {
 const WalkerScheduler = ({availabities, setAvailabites}: WalkerSchedulerProps) => {
   return (
     <>
-      <Heading as={Center} py="30px" fontSize={25} color="white">
+      <Heading as={Center} py="30px" fontSize={headerFontSize} color="white">
         Change Your Availabity
       </Heading>
       <SchedulerCalendar

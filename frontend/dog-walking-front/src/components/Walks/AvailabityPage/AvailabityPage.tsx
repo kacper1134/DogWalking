@@ -1,6 +1,7 @@
 import { Box, Button, HStack, Spacer, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { fontSize } from "../WalksDimensions";
 import LocalizationMap from "./LocalizationMap";
 import WalkerScheduler from "./WalkerScheduler";
 
@@ -102,7 +103,7 @@ const NavigationButton = ({
         variant="solid"
         colorScheme={colorScheme}
         color="white"
-        fontSize="20px"
+        fontSize={fontSize}
         px="80px"
         onClick={onClick}
       >

@@ -19,7 +19,7 @@ const App = () => {
     currentPath !== "/login" && currentPath !== "/register";
 
   return (
-    <Flex flexFlow="column" minW="full" minH="100vh" width={0} bg="white">
+    <Flex flexFlow="column" minW="full" minH="100vh" width={0} bg="white" textStyle="p">
       {isNotLoginOrRegisterPage && <Navbar />}
       <Routes>
         <Route

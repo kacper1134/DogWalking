@@ -8,20 +8,23 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { fontSize } from "../WalksDimensions";
 
 interface RadiusSliderProps {
   currentRadius: number;
   setCurrentRadius: React.Dispatch<React.SetStateAction<number>>;
+  label: string;
 }
 
 const RadiusSlider = ({
   currentRadius,
   setCurrentRadius,
+  label,
 }: RadiusSliderProps) => {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
     <HStack mb="10">
-        <Text color="white" fontWeight="bold" w="280px">Availability Radius</Text>
+        <Text color="white" fontWeight="bold" w="280px" fontSize={fontSize}>{label}</Text>
       <Slider
         defaultValue={100}
         value={currentRadius}

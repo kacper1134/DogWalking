@@ -26,11 +26,13 @@ import { AiFillPhone } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { RiUserFill } from "react-icons/ri";
+import { TbPigMoney } from "react-icons/tb";
 import {
   getErrorMessageForEmail,
   getErrorMessageForFirstName,
   getErrorMessageForLastName,
   getErrorMessageForPhoneNumber,
+  getErrorMessageForRatePerHours,
 } from "../../Auth/Register/RegisterFormErrorMessageFunctions";
 import EditImageInput from "../../common/EditImageInput";
 import TextEditor from "../../common/TextEditor";
@@ -61,6 +63,8 @@ interface UserDetailsEditModalProps {
       "Male" | "Female" | "Prefer not to disclose" | "Other" | null
     >
   >;
+  ratePerHour: number;
+  setRatePerHour: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface UserDetailsType {
@@ -68,6 +72,7 @@ export interface UserDetailsType {
   surname: string;
   imageUrl: string | null;
   description: string | "Not Provided";
+  ratePerHour: number;
   username: string;
   gender: "Male" | "Female" | "Prefer not to disclose" | "Other" | null;
   email: string;
@@ -97,6 +102,8 @@ const UserDetailsEditModal = ({
   setPhoneNumber,
   gender,
   setGender,
+  ratePerHour,
+  setRatePerHour,
 }: UserDetailsEditModalProps) => {
   const [changedName, setChangedName] = useState(name);
   const [changedContent, setChangedContent] = useState(content);
@@ -105,11 +112,13 @@ const UserDetailsEditModal = ({
   const [changedEmail, setChangedEmail] = useState(email);
   const [changedPhoneNumber, setChangedPhoneNumber] = useState(phoneNumber);
   const [changedImageUrl, setChangedImageUrl] = useState(imageUrl);
+  const [changedRatePerHour, setChangedRatePerHour] = useState(ratePerHour);
 
   const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
   const [lastNameErrorMessage, setLastNameErrorMessage] = useState("");
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = useState("");
+  const [ratePerHourErrorMessage, setRatePerHourErrorMessage] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -125,10 +134,12 @@ const UserDetailsEditModal = ({
     setChangedPhoneNumber(phoneNumber);
     setChangedImageUrl(imageUrl);
     setChangedEmail(email);
+    setChangedRatePerHour(ratePerHour);
     setFirstNameErrorMessage("");
     setLastNameErrorMessage("");
     setEmailErrorMessage("");
     setPhoneNumberErrorMessage("");
+    setRatePerHourErrorMessage("");
   };
 
   const onSubmitHandler = () => {
@@ -159,6 +170,13 @@ const UserDetailsEditModal = ({
       isInvalid = true;
     }
 
+    const ratePerHourErrorMessage =
+      getErrorMessageForRatePerHours(changedRatePerHour);
+    setRatePerHourErrorMessage(ratePerHourErrorMessage);
+    if (ratePerHourErrorMessage !== "") {
+      isInvalid = true;
+    }
+
     if (!isInvalid) {
       setName(changedName);
       setSurname(changedSurname);
@@ -167,10 +185,11 @@ const UserDetailsEditModal = ({
       setEmail(changedEmail);
       setPhoneNumber(changedPhoneNumber);
       setImageUrl(changedImageUrl);
+      setRatePerHour(Math.max(changedRatePerHour, 0));
       setIsOpen(false);
     }
   };
-  
+
   return (
     <Modal
       isOpen={isOpen}
@@ -181,7 +200,7 @@ const UserDetailsEditModal = ({
       blockScrollOnMount={false}
       scrollBehavior="inside"
     >
-      <ModalOverlay backdropFilter="blur(2px)"/>
+      <ModalOverlay backdropFilter="blur(2px)" />
       <ModalContent backgroundColor="primary.700">
         <ModalHeader textStyle="p" roundedTop="lg">
           Edit user details
@@ -196,6 +215,7 @@ const UserDetailsEditModal = ({
               value={changedName}
               setValue={setChangedName}
               errorMessage={firstNameErrorMessage}
+              type="text"
             />
             <InputElement
               label="Last Name"
@@ -204,6 +224,7 @@ const UserDetailsEditModal = ({
               value={changedSurname}
               setValue={setChangedSurname}
               errorMessage={lastNameErrorMessage}
+              type="text"
             />
           </SimpleGrid>
           <SimpleGrid pb="30px" columns={{ sm: 1, md: 2 }}>
@@ -214,6 +235,7 @@ const UserDetailsEditModal = ({
               setValue={setChangedEmail}
               icon={MdEmail}
               errorMessage={emailErrorMessage}
+              type="text"
             />
             <InputElement
               label="Phone Number"
@@ -222,15 +244,27 @@ const UserDetailsEditModal = ({
               setValue={setChangedPhoneNumber}
               icon={AiFillPhone}
               errorMessage={phoneNumberErrorMessage}
+              type="text"
             />
           </SimpleGrid>
-          <SelectElement
-            label={GenderSelectElementData.label}
-            placeholder={GenderSelectElementData.placeholder}
-            options={GenderSelectElementData.options}
-            gender={changedGender}
-            setGender={setChangedGender}
-          />
+          <SimpleGrid pb="30px" columns={{ sm: 1, md: 2 }}>
+            <SelectElement
+              label={GenderSelectElementData.label}
+              placeholder={GenderSelectElementData.placeholder}
+              options={GenderSelectElementData.options}
+              gender={changedGender}
+              setGender={setChangedGender}
+            />
+            <InputElement
+              label="Rate Per Hour"
+              placeholder="Rate Per Hour"
+              icon={TbPigMoney}
+              value={changedRatePerHour}
+              setValue={setChangedRatePerHour}
+              errorMessage={ratePerHourErrorMessage}
+              type="number"
+            />
+          </SimpleGrid>
           <Flex as={Center} pb="30px" direction={{ base: "column", md: "row" }}>
             <EditImageInput
               inititalPictureUrl={changedImageUrl ?? ""}
@@ -238,7 +272,13 @@ const UserDetailsEditModal = ({
               picture={null}
             />
             <FormControl alignSelf="start">
-              <FormLabel fontSize={detailsModalFontSize} textStyle="p" fontWeight="bold">About me</FormLabel>
+              <FormLabel
+                fontSize={detailsModalFontSize}
+                textStyle="p"
+                fontWeight="bold"
+              >
+                About me
+              </FormLabel>
               <TextEditor
                 content={changedContent}
                 setContent={setChangedContent}
@@ -273,11 +313,12 @@ const UserDetailsEditModal = ({
 
 interface InputElementProps {
   label: string;
-  value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  value: any;
+  setValue: React.Dispatch<React.SetStateAction<any>>;
   placeholder: string;
   icon: IconType;
   errorMessage: string;
+  type: "number" | "text";
 }
 
 const InputElement = ({
@@ -287,10 +328,13 @@ const InputElement = ({
   placeholder,
   icon,
   errorMessage,
+  type
 }: InputElementProps) => {
   return (
     <FormControl textStyle="p" w="95%">
-      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">{label}</FormLabel>
+      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">
+        {label}
+      </FormLabel>
       <InputGroup>
         <InputLeftElement fontSize={detailsModalFontSize}>
           <Icon as={icon} />
@@ -298,7 +342,7 @@ const InputElement = ({
         <Input
           isInvalid={errorMessage !== ""}
           pr="4.5rem"
-          type="text"
+          type={type}
           placeholder={placeholder}
           variant="filled"
           onChange={(e) => setValue(e.target.value)}
@@ -337,8 +381,10 @@ const SelectElement = ({
   setGender,
 }: SelectElementProps) => {
   return (
-    <FormControl alignSelf="start" pb="30px" textStyle="p">
-      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">{label}</FormLabel>
+    <FormControl alignSelf="start" pb="30px" textStyle="p" w="95%">
+      <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">
+        {label}
+      </FormLabel>
       <Select
         placeholder={placeholder}
         onChange={(e: any) => setGender(e.target.value)}
