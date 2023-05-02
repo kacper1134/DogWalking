@@ -7,6 +7,7 @@ import BookingMap from "./BookingMap";
 import { fontSize, headerFontSize } from "../WalksDimensions";
 import WalkerPage from "./WalkerPage";
 import { WALKERS_MOCK_DATA } from "./WalkersMockData";
+import DogSelectionPage from "./DogSelectionPage";
 
 const BookingPage = () => {
   const backgroundImageUrl =
@@ -22,6 +23,8 @@ const BookingPage = () => {
 
   const [walkerIndex, setWalkerIndex] = useState(-1);
   const walkers = WALKERS_MOCK_DATA;
+
+  const [currentStep, setCurrentStep] = useState(1);
 
   return (
     <Box
@@ -40,47 +43,66 @@ const BookingPage = () => {
       <Heading as={Center} py="30px" fontSize={headerFontSize} color="white">
         Book Your Walker
       </Heading>
-      <HStack w="100%" h="100%" flexDirection={{ base: "column", lg: "row" }}>
-        <Box w={{ base: "90%", lg: "59%" }} mr="1%" h="90%">
-          <BookingMap
-            currentCoordinates={currentCoordinates}
-            setCurrentCoordinates={setCurrentCoordinates}
-            circleRadius={currentRadius}
-            walkers={walkers}
-            walkerIndex={walkerIndex}
-            setWalkerIndex={setWalkerIndex}
-          />
-        </Box>
-        <Box w={{ base: "90%", lg: "40%" }} h="90%">
-          <Box minH="20%" maxH="50%" mb="2.5%">
-            <RadiusSlider
-              currentRadius={currentRadius}
-              setCurrentRadius={setCurrentRadius}
-              label="Maximum Range"
-            />
-            <DateRangePicker
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
+      {currentStep === 1 && (
+        <HStack w="100%" h="100%" flexDirection={{ base: "column", lg: "row" }}>
+          <Box w={{ base: "90%", lg: "59%" }} mr="1%" h="90%">
+            <BookingMap
+              currentCoordinates={currentCoordinates}
+              setCurrentCoordinates={setCurrentCoordinates}
+              circleRadius={currentRadius}
+              walkers={walkers}
+              walkerIndex={walkerIndex}
+              setWalkerIndex={setWalkerIndex}
             />
           </Box>
-          <Card
-            minH={{ base: "47.5%", lg: "69%" }}
-            maxH={{ base: "55%", lg: "69%" }}
-            bg="white"
-          >
-            {walkerIndex === -1 && (
-              <Center>
-                <Heading fontSize={fontSize} textStyle="p" color="black" mt="5%">
-                  Choose Walker From Map!
-                </Heading>
-              </Center>
-            )}
-            {walkerIndex !== -1 && (<WalkerPage walkerData={walkers[walkerIndex]} />)}
-          </Card>
-        </Box>
-      </HStack>
+          <Box w={{ base: "90%", lg: "40%" }} h="90%">
+            <Box minH="20%" maxH="50%" mb="2.5%">
+              <RadiusSlider
+                currentRadius={currentRadius}
+                setCurrentRadius={setCurrentRadius}
+                label="Maximum Range"
+              />
+              <DateRangePicker
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+              />
+            </Box>
+            <Card
+              minH={{ base: "47.5%", lg: "69%" }}
+              maxH={{ base: "55%", lg: "69%" }}
+              bg="white"
+            >
+              {walkerIndex === -1 && (
+                <Center>
+                  <Heading
+                    fontSize={fontSize}
+                    textStyle="p"
+                    color="black"
+                    mt="5%"
+                  >
+                    Choose Walker From Map!
+                  </Heading>
+                </Center>
+              )}
+              {walkerIndex !== -1 && (
+                <WalkerPage
+                  walkerData={walkers[walkerIndex]}
+                  setCurrentStep={setCurrentStep}
+                />
+              )}
+            </Card>
+          </Box>
+        </HStack>
+      )}
+      {currentStep === 2 && (
+        <DogSelectionPage
+          setCurrentStep={setCurrentStep}
+          setWalkerIndex={setWalkerIndex}
+          walker={walkers[walkerIndex]}
+        />
+      )}
     </Box>
   );
 };

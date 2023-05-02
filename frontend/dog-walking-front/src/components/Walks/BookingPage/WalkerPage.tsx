@@ -25,6 +25,7 @@ export interface Walker {
 
 interface WalkerPageProps {
   walkerData: Walker;
+  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const getAverageRating = (walker: Walker) => {
@@ -34,7 +35,7 @@ const getAverageRating = (walker: Walker) => {
   return sum / walker.reviews.length;
 };
 
-const WalkerPage = ({ walkerData }: WalkerPageProps) => {
+const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   return (
     <VStack
@@ -75,7 +76,12 @@ const WalkerPage = ({ walkerData }: WalkerPageProps) => {
           </Text>
         </Card>
       )}
-      {walkerData.reviews.length === 0 && <><Text fontSize={fontSize}>No reviews yet!</Text><Spacer /></>}
+      {walkerData.reviews.length === 0 && (
+        <>
+          <Text fontSize={fontSize}>No reviews yet!</Text>
+          <Spacer />
+        </>
+      )}
       <HStack w="80%" h="20%">
         <PageSelector
           currentPage={currentPage}
@@ -88,6 +94,7 @@ const WalkerPage = ({ walkerData }: WalkerPageProps) => {
           color="white"
           fontSize={fontSize}
           paddingX={1.7 * useBreakpointValue(fontSize)!}
+          onClick={() => setCurrentStep(2)}
         >
           Next
         </Button>

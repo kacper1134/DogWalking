@@ -24,3 +24,12 @@ export const headerFontSize = {
   xl: 24,
   "2xl": 26,
 };
+
+export const dogImageSize = {
+  base: "70px",
+  sm: "120px",
+  md: "80px",
+  lg: "130px",
+  xl: "140px",
+  "2xl": "140px"
+};
