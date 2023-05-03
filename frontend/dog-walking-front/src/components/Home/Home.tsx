@@ -1,4 +1,5 @@
 import { Button, Center, Flex, Text, VStack } from "@chakra-ui/react";
+import { useNavigate } from "react-router";
 import { headlineFontSize, homeButtonSize } from "./HomeSizes";
 
 export const Home = () => {
@@ -28,6 +29,8 @@ export const Home = () => {
 };
 
 const HomeButton = () => {
+  const navigate = useNavigate();
+
   return (
     <Button
       textStyle="p"
@@ -35,6 +38,7 @@ const HomeButton = () => {
       variant="outline"
       colorScheme="primary"
       color="primary.50"
+      onClick={() => navigate("/walks")}
     >
       Get Started
     </Button>

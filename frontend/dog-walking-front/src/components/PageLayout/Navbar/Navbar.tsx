@@ -71,6 +71,10 @@ const LINKS: Link[] = [
     path: "/walks",
   },
   {
+    text: "History",
+    path: "/history"
+  },
+  {
     text: "about",
     path: "/about",
   },

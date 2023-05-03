@@ -14,9 +14,9 @@ const AvailabityPage = () => {
     lng: 17.063,
   });
   const backgroundImageUrl =
-  currentStep === 1 ?
-    "https://images.unsplash.com/photo-1608370617993-a5c9ee904646?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" :
-    "https://images.unsplash.com/photo-1478860409698-8707f313ee8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
+    currentStep === 1
+      ? "https://images.unsplash.com/photo-1608370617993-a5c9ee904646?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+      : "https://images.unsplash.com/photo-1478860409698-8707f313ee8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
   const toast = useToast();
 
   const navigate = useNavigate();
@@ -68,18 +68,19 @@ const AvailabityPage = () => {
         />
       )}
       {currentStep === 2 && (
-        <NavigationButton
-          text="Previous"
-          onClick={() => setCurrentStep(1)}
-          colorScheme="primary"
-        />
-      )}
-      {currentStep === 2 && (
-        <NavigationButton
-          text="Confirm"
-          onClick={submitChanges}
-          colorScheme="green"
-        />
+        <HStack w="100%">
+          <Spacer />
+          <NavigationButton
+            text="Previous"
+            onClick={() => setCurrentStep(1)}
+            colorScheme="primary"
+          />
+          <NavigationButton
+            text="Confirm"
+            onClick={submitChanges}
+            colorScheme="green"
+          />
+        </HStack>
       )}
     </Box>
   );
@@ -97,7 +98,7 @@ const NavigationButton = ({
   colorScheme,
 }: NavigationButtonProps) => {
   return (
-    <HStack mt="15px">
+    <HStack py="15px">
       <Spacer />
       <Button
         variant="solid"

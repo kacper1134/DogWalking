@@ -11,7 +11,7 @@ import {
 import { Rating } from "react-simple-star-rating";
 import { fontSize, fontSmallSize } from "../WalksDimensions";
 import parser from "html-react-parser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageSelector from "./PageSelector";
 
 export interface Walker {
@@ -37,6 +37,11 @@ const getAverageRating = (walker: Walker) => {
 
 const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
   const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [setCurrentPage, walkerData]);
+
   return (
     <VStack
       color="black"
@@ -45,7 +50,7 @@ const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
       textStyle="p"
       p="1%"
     >
-      <HStack h="20%" mb="2%">
+      <HStack h="20%">
         <Heading fontSize={fontSize} textStyle="p" mt="5px">
           {walkerData.name + " " + walkerData.surname}
         </Heading>
@@ -56,7 +61,7 @@ const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
           width="80%"
           overflow="auto"
           flexGrow={10000}
-          maxH={{ base: "30vh", lg: "50vh" }}
+          maxH={{ base: "30vh", lg: "40vh" }}
           p="2%"
           bg="primary.50"
         >
