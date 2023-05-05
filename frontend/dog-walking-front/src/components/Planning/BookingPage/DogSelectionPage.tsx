@@ -15,7 +15,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { dogFontSize } from "../../Profile/DogSection/DogDimensions";
 import { exampleDogs } from "../../Profile/DogSection/DogExampleInfo";
-import { fontSize } from "../WalksDimensions";
+import { fontSize } from "../PlanningDimensions";
 import DogSelectionCard from "./DogSelectionCard";
 import { Walker } from "./WalkerPage";
 

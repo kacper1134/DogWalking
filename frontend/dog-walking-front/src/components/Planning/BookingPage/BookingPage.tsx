@@ -4,7 +4,7 @@ import RadiusSlider from "../AvailabityPage/RadiusSlider";
 import "react-datepicker/dist/react-datepicker.css";
 import DateRangePicker from "./DateRangePicker";
 import BookingMap from "./BookingMap";
-import { fontSize, headerFontSize } from "../WalksDimensions";
+import { fontSize, headerFontSize } from "../PlanningDimensions";
 import WalkerPage from "./WalkerPage";
 import { WALKERS_MOCK_DATA } from "./WalkersMockData";
 import DogSelectionPage from "./DogSelectionPage";

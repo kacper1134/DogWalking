@@ -9,7 +9,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { Rating } from "react-simple-star-rating";
-import { fontSize, fontSmallSize } from "../WalksDimensions";
+import { fontSize, fontSmallSize } from "../PlanningDimensions";
 import parser from "html-react-parser";
 import { useEffect, useState } from "react";
 import PageSelector from "./PageSelector";

@@ -10,7 +10,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import AboutPage from "./pages/AboutPage";
 import ProfilePage from "./pages/ProfilePage";
-import WalksPage from "./pages/WalksPage";
+import PlanningPage from "./pages/PlanningPage";
 import HistoryPage from "./pages/HistoryPage";
 
 const App = () => {
@@ -71,10 +71,10 @@ const App = () => {
           }
         />
         <Route
-          path="/walks/*"
+          path="/planning/*"
           element={
             <ProtectedRoute>
-              <WalksPage></WalksPage>
+              <PlanningPage></PlanningPage>
             </ProtectedRoute>
           }
         />

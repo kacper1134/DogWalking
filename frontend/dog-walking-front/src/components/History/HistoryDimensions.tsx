@@ -33,3 +33,57 @@ export const iconSize = {
   xl: "40px",
   "2xl": "40px",
 };
+
+export const walkDetailsCardWidth = {
+  base: "70%",
+  sm: "55%",
+  md: "35%",
+  lg: "30%",
+  xl: "30%",
+  "2xl": "30%",
+};
+
+export const walkDetailsCardHeight = {
+  base: "450px",
+  sm: "500px",
+  md: "500px",
+  lg: "550px",
+  xl: "550px",
+  "2xl": "550px",
+};
+
+export const walksDetailsFontSize = {
+  base: "12px",
+  sm: "14px",
+  md: "16px",
+  lg: "18px",
+  xl: "20px",
+  "2xl": "20px",
+};
+
+export const walksDetailsImageSize = {
+  base: "50px",
+  sm: "60px",
+  md: "70px",
+  lg: "80px",
+  xl: "90px",
+  "2xl": "100px",
+};
+
+export const walksDetailsRatingSize = {
+  base: 20,
+  sm: 20,
+  md: 25,
+  lg: 25,
+  xl: 30,
+  "2xl": 30,
+};
+
+export const mapCardWidth = {
+  base: "70%",
+  sm: "55%",
+  md: "50%",
+  lg: "50%",
+  xl: "50%",
+  "2xl": "50%",
+};

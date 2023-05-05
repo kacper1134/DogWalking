@@ -7,7 +7,7 @@ import {
 } from "@react-google-maps/api";
 import { useEffect } from "react";
 import { useGeolocated } from "react-geolocated";
-import { headerFontSize } from "../WalksDimensions";
+import { headerFontSize } from "../PlanningDimensions";
 import RadiusSlider from "./RadiusSlider";
 
 interface LocalizationMapProps {
@@ -105,6 +105,7 @@ const Map = ({
         maxZoom: 20,
       }}
       mapContainerClassName="map-container"
+      mapContainerStyle={{ height: "65%" }}
     >
       <MarkerF
         position={{

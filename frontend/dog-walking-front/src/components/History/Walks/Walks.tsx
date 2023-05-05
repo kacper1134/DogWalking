@@ -19,16 +19,17 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { dogImageRadius } from "../Profile/DogSection/DogDimensions";
-import PageSelector from "../Walks/BookingPage/PageSelector";
+import { dogImageRadius } from "../../Profile/DogSection/DogDimensions";
+import PageSelector from "../../Planning/BookingPage/PageSelector";
 import {
   detailsFontSize,
   historyFontSize,
   iconSize,
   imageSize,
-} from "./HistoryDimensions";
+} from "../HistoryDimensions";
 import { OWNER_WALKS, WALKER_WALKS } from "./WalksExampleInfo";
 import { BiSortDown, BiSortUp } from "react-icons/bi";
+import { useNavigate } from "react-router";
 
 const Walks = () => {
   const backgroundImageUrl =
@@ -177,8 +178,8 @@ const WalksHistory = ({ owner, walks }: WalksHistoryProps) => {
 
 export interface WalkType {
   id: number;
-  name: string;
-  surname: string;
+  owner: { name: string; surname: string };
+  walker: { name: string; surname: string };
   startTime: string;
   status: "Planned" | "In progress" | "Awaiting payment" | "Completed";
 }
@@ -200,6 +201,8 @@ const Walk = ({ owner, walk }: WalkProps) => {
       "https://images.unsplash.com/photo-1613530498905-1b17a6f40547?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1375&q=80",
   };
 
+  const navigate = useNavigate();
+
   return (
     <Card
       py="20px"
@@ -209,6 +212,7 @@ const Walk = ({ owner, walk }: WalkProps) => {
       bgColor="primary.300"
       boxShadow="dark-lg"
       cursor="pointer"
+      onClick={() => navigate(`./${walk.id}`)}
     >
       <HStack h="100%">
         <Image
@@ -236,7 +240,9 @@ const Walk = ({ owner, walk }: WalkProps) => {
           px="10px"
         >
           <Text>
-            {owner ? "Owner" : "Walker"}: {walk.name} {walk.surname}
+            {owner
+              ? "Owner: " + walk.owner.name + " " + walk.owner.surname
+              : "Walker: " + walk.walker.name + " " + walk.walker.surname}
           </Text>
           <Text>Start: {walk.startTime}</Text>
           <Text>Status: {walk.status}</Text>

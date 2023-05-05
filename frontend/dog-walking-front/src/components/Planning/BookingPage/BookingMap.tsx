@@ -8,7 +8,7 @@ import {
 } from "@react-google-maps/api";
 import { useEffect } from "react";
 import { useGeolocated } from "react-geolocated";
-import { fontSmallSize } from "../WalksDimensions";
+import { fontSmallSize } from "../PlanningDimensions";
 import { Walker } from "./WalkerPage";
 
 interface BookingMapProps {

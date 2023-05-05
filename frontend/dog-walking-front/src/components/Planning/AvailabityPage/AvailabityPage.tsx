@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Spacer, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { fontSize } from "../WalksDimensions";
+import { fontSize } from "../PlanningDimensions";
 import LocalizationMap from "./LocalizationMap";
 import WalkerScheduler from "./WalkerScheduler";
 

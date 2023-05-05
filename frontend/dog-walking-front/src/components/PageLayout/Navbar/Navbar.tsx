@@ -67,8 +67,8 @@ const LINKS: Link[] = [
     path: "/home",
   },
   {
-    text: "walks",
-    path: "/walks",
+    text: "planning",
+    path: "/planning",
   },
   {
     text: "History",

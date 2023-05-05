@@ -2,7 +2,7 @@ import ReactDatePicker from "react-datepicker";
 import { useEffect, useState } from "react";
 import { Button, Icon } from "@chakra-ui/react";
 import { BsCalendarHeartFill } from "react-icons/bs";
-import { fontSize } from "../WalksDimensions";
+import { fontSize } from "../PlanningDimensions";
 
 interface DateRangePickerProps {
   startDate: Date;

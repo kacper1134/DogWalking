@@ -8,7 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { fontSize } from "../WalksDimensions";
+import { fontSize } from "../PlanningDimensions";
 
 interface RadiusSliderProps {
   currentRadius: number;

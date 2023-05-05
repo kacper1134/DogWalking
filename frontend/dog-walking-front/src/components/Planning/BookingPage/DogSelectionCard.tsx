@@ -14,7 +14,7 @@ import {
   dogFontSize,
   dogImageRadius,
 } from "../../Profile/DogSection/DogDimensions";
-import { dogImageSize } from "../WalksDimensions";
+import { dogImageSize } from "../PlanningDimensions";
 
 interface DogSelectionCardProps {
   index: number;

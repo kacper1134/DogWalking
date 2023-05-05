@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import ChoiceImage from "./ChoiceImage";
 
-const WalksPageChoice = () => {
+const PlanningPageChoice = () => {
   return (
     <>
       <ChoiceImage
@@ -27,4 +27,4 @@ const WalksPageChoice = () => {
   );
 };
 
-export default WalksPageChoice;
+export default PlanningPageChoice;

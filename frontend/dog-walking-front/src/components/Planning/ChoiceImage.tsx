@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { backgroundVariants, slideOverlayVariants } from "./AnimationVariants";
-import { fontSize } from "./WalksDimensions";
+import { fontSize } from "./PlanningDimensions";
 
 interface ChoiceImageProps {
   text: string;

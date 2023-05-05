@@ -1,7 +1,7 @@
 import { Center, Heading } from "@chakra-ui/react";
 import SchedulerCalendar from "scheduler-calendar";
 import "scheduler-calendar/dist/index.css";
-import { headerFontSize } from "../WalksDimensions";
+import { headerFontSize } from "../PlanningDimensions";
 
 const sortByStartTime = (
   availabities: { slots: { from: string; to: string }[] }[]
