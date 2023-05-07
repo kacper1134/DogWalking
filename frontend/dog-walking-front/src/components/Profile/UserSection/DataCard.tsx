@@ -1,7 +1,6 @@
 import Card from "../../Card";
-import { Text, SimpleGrid, VStack, useBreakpointValue } from "@chakra-ui/react";
+import { Text, SimpleGrid, VStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { dogCardDescriptionWidth } from "../DogSection/DogDimensions";
 
 export interface Data {
   label: string;
@@ -36,7 +35,7 @@ const DataCard: React.FC<DataCardProps> = ({
         >
           {title}
         </Text>
-        <SimpleGrid columns={2} w="100%">
+        <SimpleGrid columns={2} w="100%" spacingY={10}>
           {properties.map((property, index) => (
             <LabeledData key={index} data={property} fontSize={fontSize} />
           ))}

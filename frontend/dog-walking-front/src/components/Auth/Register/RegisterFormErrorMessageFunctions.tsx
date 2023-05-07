@@ -75,3 +75,9 @@ export const getErrorMessageForLastName = (lastName: string) => {
   if (lastName === "") return "Last name is required.";
   return "";
 };
+
+export const getErrorMessageForRatePerHours = (ratePerHour: number) => {
+  if (ratePerHour < 0) return "Rate Per Hour cannot be negative number!";
+  if (ratePerHour > 200) return "Rate Per Hour cannot be higher than $200";
+  return "";
+}

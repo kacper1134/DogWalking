@@ -27,6 +27,7 @@ const MOCK_USER_DETAILS: UserDetailsType = {
   name: "Kacper",
   surname: "Kochański",
   email: "kacper2000@o2.pl",
+  ratePerHour: 50,
   phoneNumber: "",
   imageUrl:
     "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
@@ -53,6 +54,7 @@ const UserDetails = () => {
   const [email, setEmail] = useState(MOCK_USER_DETAILS.email);
   const [phoneNumber, setPhoneNumber] = useState(MOCK_USER_DETAILS.phoneNumber);
   const [imageUrl, setImageUrl] = useState(MOCK_USER_DETAILS.imageUrl);
+  const [ratePerHour, setRatePerHour] = useState(MOCK_USER_DETAILS.ratePerHour);
 
   const contactInformation: Data[] = [
     {
@@ -73,6 +75,10 @@ const UserDetails = () => {
     {
       label: "Gender",
       value: gender ?? "Not provided",
+    },
+    {
+      label: "Rate Per Hour",
+      value: "$" + ratePerHour,
     },
   ];
   
@@ -151,6 +157,8 @@ const UserDetails = () => {
         phoneNumber={phoneNumber}
         setPhoneNumber={setPhoneNumber}
         gender={gender}
+        ratePerHour={ratePerHour}
+        setRatePerHour={setRatePerHour}
         setGender={setGender}
       />
     </>

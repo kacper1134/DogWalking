@@ -9,7 +9,6 @@ import {
   useBreakpointValue,
   Spacer,
   Icon,
-  Flex,
 } from "@chakra-ui/react";
 import {
   dogCardDescriptionWidth,
@@ -40,7 +39,7 @@ export interface DogCardProps {
   deleteDogInfo: (id: number) => void;
 }
 
-const calculateAge = (birthday: string) => {
+export const calculateAge = (birthday: string) => {
   var ageDifMs = Date.now() - new Date(birthday).getTime();
   var ageDate = new Date(ageDifMs);
   return Math.abs(ageDate.getUTCFullYear() - 1970);

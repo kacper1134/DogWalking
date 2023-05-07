@@ -10,6 +10,8 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import AboutPage from "./pages/AboutPage";
 import ProfilePage from "./pages/ProfilePage";
+import PlanningPage from "./pages/PlanningPage";
+import HistoryPage from "./pages/HistoryPage";
 
 const App = () => {
   const location = useLocation();
@@ -18,7 +20,14 @@ const App = () => {
     currentPath !== "/login" && currentPath !== "/register";
 
   return (
-    <Flex flexFlow="column" minW="full" minH="100vh" width={0} bg="white">
+    <Flex
+      flexFlow="column"
+      minW="full"
+      minH="100vh"
+      width={0}
+      bg="white"
+      textStyle="p"
+    >
       {isNotLoginOrRegisterPage && <Navbar />}
       <Routes>
         <Route
@@ -58,6 +67,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/planning/*"
+          element={
+            <ProtectedRoute>
+              <PlanningPage></PlanningPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/*"
+          element={
+            <ProtectedRoute>
+              <HistoryPage />
             </ProtectedRoute>
           }
         />
