@@ -38,7 +38,7 @@ const HomeButton = () => {
       variant="outline"
       colorScheme="primary"
       color="primary.50"
-      onClick={() => navigate("/walks")}
+      onClick={() => navigate("/planning")}
     >
       Get Started
     </Button>
