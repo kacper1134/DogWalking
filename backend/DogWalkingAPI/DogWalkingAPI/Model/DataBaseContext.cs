@@ -4,7 +4,7 @@ namespace DogWalkingAPI.Model
 {
     public class DataBaseContext : DbContext
     {
-        protected DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options) { }
+        public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options) { }
 
         public DbSet<Dog> Dogs { get; set; }
 
