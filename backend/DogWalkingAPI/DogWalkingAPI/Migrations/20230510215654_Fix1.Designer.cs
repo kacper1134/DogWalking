@@ -4,6 +4,7 @@ using DogWalkingAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DogWalkingAPI.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230510215654_Fix1")]
+    partial class Fix1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,9 +91,15 @@ namespace DogWalkingAPI.Migrations
                     b.Property<int>("WalkId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("WalkStartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WalkerId")
+                        .HasColumnType("int");
+
                     b.HasKey("DogId", "WalkId");
 
-                    b.HasIndex("WalkId");
+                    b.HasIndex("WalkerId", "WalkStartTime");
 
                     b.ToTable("DogWalks");
                 });
@@ -157,11 +166,11 @@ namespace DogWalkingAPI.Migrations
 
             modelBuilder.Entity("DogWalkingAPI.Model.Walk", b =>
                 {
-                    b.Property<int>("WalkId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("WalkerId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WalkId"));
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -176,17 +185,9 @@ namespace DogWalkingAPI.Migrations
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("WalkerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("WalkId");
+                    b.HasKey("WalkerId", "StartTime");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex("WalkerId");
 
                     b.ToTable("Walks");
                 });
@@ -221,7 +222,7 @@ namespace DogWalkingAPI.Migrations
 
                     b.HasOne("DogWalkingAPI.Model.Walk", "Walk")
                         .WithMany("Dogs")
-                        .HasForeignKey("WalkId")
+                        .HasForeignKey("WalkerId", "WalkStartTime")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

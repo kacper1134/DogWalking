@@ -4,24 +4,34 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DogWalkingAPI.Model
 {
-    [PrimaryKey(nameof(UserId), nameof(Date), nameof(DogId))]
     public class Walk
     {
-        [Required]
-        public int UserId { get; set; }
-        [Required]
-        public int DogId { get; set; }
+        [Key]
+        public int WalkId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User? User { get; set; }
-
-        public DateTime Date { get; set; }
         [Required]
+        public int OwnerId { get; set; }
 
-        public double Rate { get; set; }
-
-        [ForeignKey("DogId")]
         [Required]
-        public Dog? Dog { get; set; }
+        public int WalkerId { get; set; }
+
+        [ForeignKey("WalkerId")]
+        virtual public User? Walker { get; set; }
+
+        [ForeignKey("OwnerId")]
+        virtual public User? Owner { get; set; }
+
+        [Required]
+        public DateTime StartTime { get; set; }
+
+        [Required]
+        public DateTime EndTime { get; set; }
+
+        public double Rating { get; set; }
+
+        public string Content { get; set; }
+
+        [Required]
+        public ICollection<DogWalk> Dogs { get; set; }
     }
 }

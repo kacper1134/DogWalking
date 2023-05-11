@@ -10,12 +10,13 @@ namespace DogWalkingAPI.Model
         [Required]
         public string Name { get; set; }
         [Required]
-        public Sex Sex { get; set; }
+        public DateTime Birthday { get; set; }
         [Required]
-        public int Age { get; set; }
+        public string Description { get; set; }
         [Required]
-        public string Breed { get; set; }
+        public string ImageUrl { get; set; }
         [ForeignKey("OwnerId")]
         public User? Owner { get; set; }
+        virtual public ICollection<DogWalk> Walks { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace DogWalkingAPI.Model
 {
-    public enum Sex
+    public enum Gender
     {
         Male,
         Female

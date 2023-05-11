@@ -54,7 +54,7 @@ namespace DogWalkingAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAvailability(int id, Availability availability)
         {
-            if (id != availability.UserId)
+            if (id != availability.WalkerId)
             {
                 return BadRequest();
             }
@@ -96,7 +96,7 @@ namespace DogWalkingAPI.Controllers
             }
             catch (DbUpdateException)
             {
-                if (AvailabilityExists(availability.UserId))
+                if (AvailabilityExists(availability.WalkerId))
                 {
                     return Conflict();
                 }
@@ -106,7 +106,7 @@ namespace DogWalkingAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAvailability", new { id = availability.UserId }, availability);
+            return CreatedAtAction("GetAvailability", new { id = availability.WalkerId }, availability);
         }
 
         // DELETE: api/Availabilities/5
@@ -131,7 +131,7 @@ namespace DogWalkingAPI.Controllers
 
         private bool AvailabilityExists(int id)
         {
-            return (_context.Availabilities?.Any(e => e.UserId == id)).GetValueOrDefault();
+            return (_context.Availabilities?.Any(e => e.WalkerId == id)).GetValueOrDefault();
         }
     }
 }

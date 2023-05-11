@@ -4,15 +4,27 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DogWalkingAPI.Model
 {
-    [PrimaryKey(nameof(UserId), nameof(Date))]
+    [PrimaryKey(nameof(WalkerId), nameof(StartTime))]
     public class Availability
     {
         [Required]
-        public int UserId { get; set; }
+        public int WalkerId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
+        [ForeignKey("WalkerId")]
+        public User Walker { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime StartTime { get; set; }
+
+        [Required]
+        public DateTime EndTime { get; set; }
+
+        [Required]
+        public double Latitude { get; set; }
+
+        [Required]
+        public double Longitude { get; set; }
+
+        [Required]
+        public double Radius { get; set; }
     }
 }

@@ -11,55 +11,55 @@ namespace DogWalkingAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WalksController : ControllerBase
+    public class DogWalksController : ControllerBase
     {
         private readonly DataBaseContext _context;
 
-        public WalksController(DataBaseContext context)
+        public DogWalksController(DataBaseContext context)
         {
             _context = context;
         }
 
-        // GET: api/Walks
+        // GET: api/DogWalks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Walk>>> GetWalks()
+        public async Task<ActionResult<IEnumerable<DogWalk>>> GetDogWalks()
         {
-          if (_context.Walks == null)
+          if (_context.DogWalks == null)
           {
               return NotFound();
           }
-            return await _context.Walks.ToListAsync();
+            return await _context.DogWalks.ToListAsync();
         }
 
-        // GET: api/Walks/5
+        // GET: api/DogWalks/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Walk>> GetWalk(int id)
+        public async Task<ActionResult<DogWalk>> GetDogWalk(int id)
         {
-          if (_context.Walks == null)
+          if (_context.DogWalks == null)
           {
               return NotFound();
           }
-            var walk = await _context.Walks.FindAsync(id);
+            var dogWalk = await _context.DogWalks.FindAsync(id);
 
-            if (walk == null)
+            if (dogWalk == null)
             {
                 return NotFound();
             }
 
-            return walk;
+            return dogWalk;
         }
 
-        // PUT: api/Walks/5
+        // PUT: api/DogWalks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWalk(int id, Walk walk)
+        public async Task<IActionResult> PutDogWalk(int id, DogWalk dogWalk)
         {
-            if (id != walk.WalkerId)
+            if (id != dogWalk.DogId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(walk).State = EntityState.Modified;
+            _context.Entry(dogWalk).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +67,7 @@ namespace DogWalkingAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!WalkExists(id))
+                if (!DogWalkExists(id))
                 {
                     return NotFound();
                 }
@@ -80,23 +80,23 @@ namespace DogWalkingAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Walks
+        // POST: api/DogWalks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Walk>> PostWalk(Walk walk)
+        public async Task<ActionResult<DogWalk>> PostDogWalk(DogWalk dogWalk)
         {
-          if (_context.Walks == null)
+          if (_context.DogWalks == null)
           {
-              return Problem("Entity set 'DataBaseContext.Walks'  is null.");
+              return Problem("Entity set 'DataBaseContext.DogWalks'  is null.");
           }
-            _context.Walks.Add(walk);
+            _context.DogWalks.Add(dogWalk);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (WalkExists(walk.WalkerId))
+                if (DogWalkExists(dogWalk.DogId))
                 {
                     return Conflict();
                 }
@@ -106,32 +106,32 @@ namespace DogWalkingAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetWalk", new { id = walk.WalkerId }, walk);
+            return CreatedAtAction("GetDogWalk", new { id = dogWalk.DogId }, dogWalk);
         }
 
-        // DELETE: api/Walks/5
+        // DELETE: api/DogWalks/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteWalk(int id)
+        public async Task<IActionResult> DeleteDogWalk(int id)
         {
-            if (_context.Walks == null)
+            if (_context.DogWalks == null)
             {
                 return NotFound();
             }
-            var walk = await _context.Walks.FindAsync(id);
-            if (walk == null)
+            var dogWalk = await _context.DogWalks.FindAsync(id);
+            if (dogWalk == null)
             {
                 return NotFound();
             }
 
-            _context.Walks.Remove(walk);
+            _context.DogWalks.Remove(dogWalk);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool WalkExists(int id)
+        private bool DogWalkExists(int id)
         {
-            return (_context.Walks?.Any(e => e.WalkerId == id)).GetValueOrDefault();
+            return (_context.DogWalks?.Any(e => e.DogId == id)).GetValueOrDefault();
         }
     }
 }
