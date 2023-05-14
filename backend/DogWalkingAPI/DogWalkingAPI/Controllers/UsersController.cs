@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DogWalkingAPI.Model;
+using System.Security.Cryptography;
+using System.Runtime.Intrinsics.Arm;
+using System.Text;
 
 namespace DogWalkingAPI.Controllers
 {
@@ -20,41 +23,60 @@ namespace DogWalkingAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        // POST: api/Users/Login
+        [HttpPost("Login")]
+        public ActionResult<User> Login(string username, string password)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            return await _context.Users.ToListAsync();
+            if (_context.Users == null)
+            {
+                return Problem("Entity set 'DataBaseContext.Users'  is null.");
+            }
+            using (SHA256 hashFunction = SHA256.Create())
+            {
+                byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(password));
+                string hashedPassword = System.Text.Encoding.Default.GetString(hashValue);
+                if (_context.Users.FirstOrDefault(u => u.UserName.Equals(username) && u.UserPassword.Equals(password)) != null)
+                {
+                    return Ok();
+                }
+                return Unauthorized();
+            }
         }
 
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        // POST: api/Users/Register
+        [HttpPost("Register")]
+        public ActionResult<User> Register(User user)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            var user = await _context.Users.FindAsync(id);
+            _context.Users.Add(user);
+            _context.SaveChanges();
 
-            if (user == null)
+            return Ok();
+        }
+
+        // GET: api/Users/GetUser
+        [HttpGet("{username}")]
+        public async Task<ActionResult<User>> GetUser(string username)
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
+
+            if (userFound == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return userFound;
         }
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut("{username}")]
+        public async Task<ActionResult<User>> EditUser(string username, User user)
         {
-            if (id != user.UserId)
+            if (username != user.UserName)
             {
                 return BadRequest();
             }
@@ -67,57 +89,139 @@ namespace DogWalkingAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
+
+                if (userFound != null)
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
+                    return userFound;
                 }
             }
-
-            return NoContent();
+            return NotFound();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-          if (_context.Users == null)
-          {
-              return Problem("Entity set 'DataBaseContext.Users'  is null.");
-          }
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
-        }
-
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        // GET: api/Users/GetUserDogs
+        [HttpGet("GetUserDogs/{username}")]
+        public async Task<ActionResult<ICollection<Dog>>> GetUserDogs(string username)
         {
             if (_context.Users == null)
             {
                 return NotFound();
             }
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
+
+            if (userFound == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            var dogs = userFound.Dogs;
 
-            return NoContent();
+            return dogs.ToList();
         }
+
+        //// GET: api/Users
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        //{
+        //    if (_context.Users == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return await _context.Users.ToListAsync();
+        //}
+
+        //// GET: api/Users/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<User>> GetUser(int id)
+        //{
+        //    if (_context.Users == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var user = await _context.Users.FindAsync(id);
+
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return user;
+        //}
+
+        //// PUT: api/Users/5
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutUser(int id, User user)
+        //{
+        //    if (id != user.UserId)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(user).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!UserExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
+
+        //// POST: api/Users
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<User>> PostUser(User user)
+        //{
+        //    if (_context.Users == null)
+        //    {
+        //        return Problem("Entity set 'DataBaseContext.Users'  is null.");
+        //    }
+        //    _context.Users.Add(user);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+        //}
+
+        //// DELETE: api/Users/5
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteUser(int id)
+        //{
+        //    if (_context.Users == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var user = await _context.Users.FindAsync(id);
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _context.Users.Remove(user);
+        //    await _context.SaveChangesAsync();
+
+        //    return NoContent();
+        //}
 
         private bool UserExists(int id)
         {
             return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+        }
+
+        private bool UserExists(string username)
+        {
+            return (_context.Users?.Any(e => e.UserName == username)).GetValueOrDefault();
         }
     }
 }
