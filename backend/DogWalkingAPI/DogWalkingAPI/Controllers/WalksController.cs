@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DogWalkingAPI.Model;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DogWalkingAPI.Controllers
 {
@@ -14,11 +15,156 @@ namespace DogWalkingAPI.Controllers
     public class WalksController : ControllerBase
     {
         private readonly DataBaseContext _context;
+        private Dictionary<int, (double,double)> _currentWalks;
 
         public WalksController(DataBaseContext context)
         {
             _context = context;
         }
+
+        // GET: api/Walks/GetAllWalkerWalks
+        [HttpGet("GetAllWalkerWalks")]
+        public async Task<ActionResult<IEnumerable<Walk>>> GetAllWalkerWalks(string username)
+        {
+            if (_context.Walks == null)
+            {
+                return NotFound();
+            }
+            User? walker = await _context.Users?.FirstOrDefaultAsync(u => u.UserName == username);
+            if (walker == null)
+            {
+                return NotFound();
+            }
+            return walker.WalkerWalks.ToList();
+        }
+
+        // GET: api/Walks/GetAllOwnerWalks
+        [HttpGet("GetAllOwnerWalks")]
+        public async Task<ActionResult<IEnumerable<Walk>>> GetAllOwnerWalks(string username)
+        {
+            if (_context.Walks == null)
+            {
+                return NotFound();
+            }
+            User? walker = await _context.Users?.FirstOrDefaultAsync(u => u.UserName == username);
+            if (walker == null)
+            {
+                return NotFound();
+            }
+            return walker.OwnerWalks.ToList();
+        }
+
+        // GET: api/Walks/GetReview
+        [HttpGet("GetReview")]
+        public ActionResult<Review> GetReview(int walkId)
+        {
+            if (_context.Walks == null)
+            {
+                return NotFound();
+            }
+            Walk? walk = _context.Walks?.FirstOrDefault(w => w.WalkId == walkId);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+            Review review = new Review();
+            review.Rating = walk.Rating;
+            review.Content = walk.Content;
+            return review;
+        }
+
+        // GET: api/Walks/StartWalk
+        [HttpGet("StartWalk")]
+        public ActionResult<(double, double)> StartWalk(int walkId, double lat, double lng)
+        {
+            if (_currentWalks == null)
+            {
+                return NotFound();
+            }
+            _currentWalks[walkId] = (lat, lng);
+            return Ok();
+        }
+
+        // GET: api/Walks/CurrentWalksPosition/{id}
+        [HttpGet("GetCurrentWalksPosition")]
+        public ActionResult<(double,double)> GetCurrentWalksPosition(int walkId)
+        {
+            if (_currentWalks.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+            if (_currentWalks.ContainsKey(walkId))
+            {
+                return _currentWalks[walkId];
+            }
+            return NotFound();
+        }
+
+        // POST: api/Walks/GetCurrentWalksPosition/{id}
+        [HttpPost("CurrentWalksPosition")]
+        public ActionResult<(double, double)> UpdateCurrentWalksPosition(int walkId, double lat, double lng)
+        {
+            if (_currentWalks.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+            if (_currentWalks.ContainsKey(walkId))
+            {
+                _currentWalks[walkId] = (lat, lng);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        // GET: api/Walks/CancelWalk/{id}
+        [HttpGet("CancelWalk")]
+        public ActionResult<IEnumerable<Walk>> CancelWalk(int walkId)
+        {
+            if (_context.Walks == null)
+            {
+                return NotFound();
+            }
+            var currentTime = DateTime.Now;
+            var walk = _context.Walks.FirstOrDefault(w => w.WalkId == walkId);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+            if (walk.StartTime < currentTime)
+            {
+                return NotFound("Can't cancel finished walks!");
+            }
+            _context.Walks.Remove(walk);
+            return Ok();
+        }
+
+        // GET: api/Walks/StopWalk/{id}
+        [HttpGet("StopWalk")]
+        public ActionResult<IEnumerable<Walk>> StopWalk(int walkId) //TODO
+        {
+            if (_currentWalks.IsNullOrEmpty())
+            {
+                return NotFound();
+            }
+            return Ok();
+        }
+
+        // GET: api/Walks/AddReview
+        //[HttpGet("AddReview")]
+        //public async Task<ActionResult<IEnumerable<Walk>>> AddReview(int id, double rating, string content)
+        //{
+        //    if (_context.Walks == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    User? walker = _context.Users?.FirstOrDefaultAsync(u => u.UserName == username).Result;
+        //    if (walker == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return walker.OwnerWalks.ToList();
+        //}
+
 
         // GET: api/Walks
         [HttpGet]
@@ -52,7 +198,7 @@ namespace DogWalkingAPI.Controllers
         // PUT: api/Walks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWalk(int id, Walk walk)
+        public async Task<IActionResult> AddReview(int id, Walk walk)
         {
             if (id != walk.WalkerId)
             {
