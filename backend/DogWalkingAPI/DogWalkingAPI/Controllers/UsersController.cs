@@ -129,6 +129,7 @@ namespace DogWalkingAPI.Controllers
             }
 
             var dogs = userFound.Dogs;
+            if (dogs == null) return Enumerable.Empty<Dog>().ToList();
 
             return dogs.ToList();
         }

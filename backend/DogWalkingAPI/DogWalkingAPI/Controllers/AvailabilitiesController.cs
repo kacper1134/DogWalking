@@ -83,11 +83,12 @@ namespace DogWalkingAPI.Controllers
         public ActionResult<IEnumerable<Availability>> GetWalkers(double lat, double lng, double maximumRange, string startDate, string endDate)
         {
             // todo
-            if (_context.Availabilities == null)
-            {
-                return NotFound();
-            }
-            return _context.Availabilities.Where(a => a.WalkerId == walkerId).ToList();
+            //if (_context.Availabilities == null)
+            //{
+            //    return NotFound();
+            //}
+            //return _context.Availabilities.Where(a => a.WalkerId == walkerId).ToList();
+            return Ok();
         }
 
         // ---------------------------------------
