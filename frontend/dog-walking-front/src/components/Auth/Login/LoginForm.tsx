@@ -16,13 +16,13 @@ import {
   AlertIcon,
   Collapse,
   Box,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import Form from "../../Form";
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
-import { authActions } from "../../../store/authSlice";
 import { useDispatch } from "react-redux";
 import {
   CustomResponsiveValue,
@@ -32,6 +32,8 @@ import {
   loginFormWidth,
   textFontSize,
 } from "./LoginFormSizes";
+import { useLoginMutation } from "../../../store/userApiSlice";
+import { authActions } from "../../../store/authSlice";
 
 export const LoginForm = () => {
   const [login, setLogin] = useState("");
@@ -159,13 +161,28 @@ const LoginButton = ({
   setIsCredentialsValid,
 }: LoginButtonProps) => {
   const dispatch = useDispatch();
+  const [loginMutation, result] = useLoginMutation();
+  const toast = useToast();
+
   const loginHandler = () => {
-    if (login === "admin" && password === "toor") {
-      dispatch(authActions.login());
-      setIsCredentialsValid(true);
-    } else {
-      setIsCredentialsValid(false);
-    }
+    loginMutation({
+      username: encodeURIComponent(login),
+      password: encodeURIComponent(password),
+    }).then((result) => {
+      if ("error" in result) {
+        toast({
+          title: "Could not login",
+          description: "Invalid login or password",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+        setIsCredentialsValid(false);
+      } else {
+        setIsCredentialsValid(true);
+        dispatch(authActions.login(login))
+      }
+    });
   };
   return (
     <Button w="70%" onClick={loginHandler} fontSize={fontSize} textStyle="p">

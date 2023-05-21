@@ -18,7 +18,7 @@ import { detailsModalFontSize } from "../Profile/UserSection/UserDetailsModalDim
 interface EditImageInputProps {
   picture: File | null | undefined;
   inititalPictureUrl: string;
-  setImageUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const EditImageInput = ({

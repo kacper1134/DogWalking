@@ -47,8 +47,8 @@ interface UserDetailsEditModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   content: string;
   setContent: React.Dispatch<React.SetStateAction<string>>;
-  imageUrl: string | null;
-  setImageUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  imageUrl: string;
+  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
   surname: string;
@@ -57,12 +57,8 @@ interface UserDetailsEditModalProps {
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   phoneNumber: string;
   setPhoneNumber: React.Dispatch<React.SetStateAction<string>>;
-  gender: "Male" | "Female" | "Prefer not to disclose" | "Other" | null;
-  setGender: React.Dispatch<
-    React.SetStateAction<
-      "Male" | "Female" | "Prefer not to disclose" | "Other" | null
-    >
-  >;
+  gender: "Male" | "Female";
+  setGender: React.Dispatch<React.SetStateAction<"Male" | "Female">>;
   ratePerHour: number;
   setRatePerHour: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -74,7 +70,7 @@ export interface UserDetailsType {
   description: string | "Not Provided";
   ratePerHour: number;
   username: string;
-  gender: "Male" | "Female" | "Prefer not to disclose" | "Other" | null;
+  gender: "Male" | "Female";
   email: string;
   phoneNumber: string | "Not Provided";
 }
@@ -328,7 +324,7 @@ const InputElement = ({
   placeholder,
   icon,
   errorMessage,
-  type
+  type,
 }: InputElementProps) => {
   return (
     <FormControl textStyle="p" w="95%">
@@ -365,12 +361,8 @@ interface SelectElementProps {
   label: string;
   placeholder: string;
   options: string[];
-  gender: "Male" | "Female" | "Prefer not to disclose" | "Other" | null;
-  setGender: React.Dispatch<
-    React.SetStateAction<
-      "Male" | "Female" | "Prefer not to disclose" | "Other" | null
-    >
-  >;
+  gender: "Male" | "Female";
+  setGender: React.Dispatch<React.SetStateAction<"Male" | "Female">>;
 }
 
 const SelectElement = ({
