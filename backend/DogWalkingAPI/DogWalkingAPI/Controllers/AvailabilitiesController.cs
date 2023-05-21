@@ -20,25 +20,71 @@ namespace DogWalkingAPI.Controllers
             _context = context;
         }
 
+        // POST: api/Availabilities
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Availability>> AddAvailabilities(ICollection<Availability> availabilities)
+        {
+            // todo - arguments are strings, convert them to availabilities
+            if (_context.Availabilities == null)
+            {
+                return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
+            }
+            foreach (Availability availability in availabilities)
+            {
+                if (AvailabilityExists(availability.WalkerId, availability.StartTime))
+                {
+                    return Conflict();
+                }
+                _context.Availabilities.Add(availability);
+            }
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
         // GET: api/Availabilities
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Availability>>> GetAvailabilities()
+        public ActionResult<IEnumerable<Availability>> GetAvailabilities(int walkerId)
         {
-          if (_context.Availabilities == null)
-          {
-              return NotFound();
-          }
-            return await _context.Availabilities.ToListAsync();
+            if (_context.Availabilities == null)
+            {
+                return NotFound();
+            }
+            return _context.Availabilities.Where(a => a.WalkerId == walkerId).ToList();
         }
+
+        // POST: api/Availabilities
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("ChangeLocation")]
+        public async Task<ActionResult<Availability>> ChangeLocation(string username, double lat, double lng, double radius)
+        {
+            // todo - arguments are strings, convert them to availabilities
+            //if (_context.Availabilities == null)
+            //{
+            //    return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
+            //}
+            //foreach (Availability availability in availabilities)
+            //{
+            //    if (AvailabilityExists(availability.WalkerId, availability.StartTime))
+            //    {
+            //        return Conflict();
+            //    }
+            //    _context.Availabilities.Add(availability);
+            //}
+            //await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // ---------------------------------------
 
         // GET: api/Availabilities/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Availability>> GetAvailability(int id)
         {
-          if (_context.Availabilities == null)
-          {
-              return NotFound();
-          }
+            if (_context.Availabilities == null)
+            {
+                return NotFound();
+            }
             var availability = await _context.Availabilities.FindAsync(id);
 
             if (availability == null)
@@ -51,63 +97,63 @@ namespace DogWalkingAPI.Controllers
 
         // PUT: api/Availabilities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAvailability(int id, Availability availability)
-        {
-            if (id != availability.WalkerId)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutAvailability(int id, Availability availability)
+        //{
+        //    if (id != availability.WalkerId)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(availability).State = EntityState.Modified;
+        //    _context.Entry(availability).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AvailabilityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!AvailabilityExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/Availabilities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Availability>> PostAvailability(Availability availability)
-        {
-          if (_context.Availabilities == null)
-          {
-              return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
-          }
-            _context.Availabilities.Add(availability);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (AvailabilityExists(availability.WalkerId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //[HttpPost]
+        //public async Task<ActionResult<Availability>> PostAvailability(Availability availability)
+        //{
+        //  if (_context.Availabilities == null)
+        //  {
+        //      return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
+        //  }
+        //    _context.Availabilities.Add(availability);
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateException)
+        //    {
+        //        if (AvailabilityExists(availability.WalkerId))
+        //        {
+        //            return Conflict();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return CreatedAtAction("GetAvailability", new { id = availability.WalkerId }, availability);
-        }
+        //    return CreatedAtAction("GetAvailability", new { id = availability.WalkerId }, availability);
+        //}
 
         // DELETE: api/Availabilities/5
         [HttpDelete("{id}")]
@@ -129,9 +175,9 @@ namespace DogWalkingAPI.Controllers
             return NoContent();
         }
 
-        private bool AvailabilityExists(int id)
+        private bool AvailabilityExists(int id, DateTime startTime)
         {
-            return (_context.Availabilities?.Any(e => e.WalkerId == id)).GetValueOrDefault();
+            return (_context.Availabilities?.Any(e => e.WalkerId == id && e.StartTime == startTime)).GetValueOrDefault();
         }
     }
 }

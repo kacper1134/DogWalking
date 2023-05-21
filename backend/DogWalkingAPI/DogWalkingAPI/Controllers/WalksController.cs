@@ -20,6 +20,7 @@ namespace DogWalkingAPI.Controllers
         public WalksController(DataBaseContext context)
         {
             _context = context;
+            _currentWalks = new Dictionary<int, (double, double)>();
         }
 
         // GET: api/Walks/GetAllWalkerWalks
@@ -73,8 +74,37 @@ namespace DogWalkingAPI.Controllers
             return review;
         }
 
+        // POST: api/Walks
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("CreateWalk")]
+        public async Task<ActionResult<Walk>> CreateWalk(Walk walk)
+        {
+            if (_context.Walks == null)
+            {
+                return Problem("Entity set 'DataBaseContext.Walks'  is null.");
+            }
+            _context.Walks.Add(walk);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (WalkExists(walk.WalkerId, walk.StartTime))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtAction("GetWalk", new { id = walk.WalkerId }, walk);
+        }
+
         // GET: api/Walks/StartWalk
-        [HttpGet("StartWalk")]
+        [HttpPost("StartWalk")]
         public ActionResult<(double, double)> StartWalk(int walkId, double lat, double lng)
         {
             if (_currentWalks == null)
@@ -117,7 +147,7 @@ namespace DogWalkingAPI.Controllers
         }
 
         // GET: api/Walks/CancelWalk/{id}
-        [HttpGet("CancelWalk")]
+        [HttpPost("CancelWalk")]
         public ActionResult<IEnumerable<Walk>> CancelWalk(int walkId)
         {
             if (_context.Walks == null)
@@ -139,13 +169,14 @@ namespace DogWalkingAPI.Controllers
         }
 
         // GET: api/Walks/StopWalk/{id}
-        [HttpGet("StopWalk")]
+        [HttpPost("StopWalk")]
         public ActionResult<IEnumerable<Walk>> StopWalk(int walkId) //TODO
         {
             if (_currentWalks.IsNullOrEmpty())
             {
-                return NotFound();
+                return NotFound("No walk with given ID!");
             }
+            _currentWalks.Remove(walkId);
             return Ok();
         }
 
@@ -200,7 +231,7 @@ namespace DogWalkingAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> AddReview(int id, Walk walk)
         {
-            if (id != walk.WalkerId)
+            if (id != walk.WalkId)
             {
                 return BadRequest();
             }
@@ -226,35 +257,6 @@ namespace DogWalkingAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Walks
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Walk>> PostWalk(Walk walk)
-        {
-          if (_context.Walks == null)
-          {
-              return Problem("Entity set 'DataBaseContext.Walks'  is null.");
-          }
-            _context.Walks.Add(walk);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (WalkExists(walk.WalkerId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetWalk", new { id = walk.WalkerId }, walk);
-        }
-
         // DELETE: api/Walks/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWalk(int id)
@@ -275,9 +277,14 @@ namespace DogWalkingAPI.Controllers
             return NoContent();
         }
 
-        private bool WalkExists(int id)
+        private bool WalkExists(int walkerId, DateTime startTime)
         {
-            return (_context.Walks?.Any(e => e.WalkerId == id)).GetValueOrDefault();
+            return (_context.Walks?.Any(e => e.WalkerId == walkerId && e.StartTime == startTime)).GetValueOrDefault();
+        }
+
+        private bool WalkExists(int walkId)
+        {
+            return (_context.Walks?.Any(e => e.WalkId == walkId)).GetValueOrDefault();
         }
     }
 }

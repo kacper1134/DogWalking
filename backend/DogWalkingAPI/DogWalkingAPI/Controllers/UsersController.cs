@@ -48,7 +48,21 @@ namespace DogWalkingAPI.Controllers
         public ActionResult<User> Register(User user)
         {
             _context.Users.Add(user);
-            _context.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (UserExists(user.UserName))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return Ok();
         }

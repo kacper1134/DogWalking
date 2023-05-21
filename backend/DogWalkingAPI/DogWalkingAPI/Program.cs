@@ -1,4 +1,5 @@
 using DogWalkingAPI.Model;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
