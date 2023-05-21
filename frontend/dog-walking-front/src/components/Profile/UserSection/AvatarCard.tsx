@@ -8,6 +8,8 @@ import {
   Center,
 } from "@chakra-ui/react";
 import parse from "html-react-parser";
+import { useEffect, useState } from "react";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
 import Card from "../../Card";
 import { userCardDescriptionWidth } from "./ProfileDetailsDimensions";
 
@@ -33,12 +35,23 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   width,
   userDetails,
 }) => {
+  const getImage = useGetFirebaseImage();
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    if (userDetails.imageUrl !== "") {
+      getImage(userDetails.imageUrl)
+        .then((url) => setImage(url))
+        .catch(() => setImage(""));
+    }
+  }, [getImage, userDetails.imageUrl]);
+  
   return (
     <Card width={width} height={height} px="20px" py="20px" borderRadius="15px">
       <Flex>
         <Box minWidth={height} minHeight={height} position="sticky" top="0">
           <Image
-            src={userDetails.imageUrl ?? ""}
+            src={image}
             w={height}
             h={height}
             objectFit="cover"

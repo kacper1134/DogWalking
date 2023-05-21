@@ -5,7 +5,7 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
@@ -74,6 +74,17 @@ const UserDetails = () => {
       value: "$" + ratePerHour,
     },
   ];
+
+  useEffect(() => {
+    setName(details?.firstName ?? "");
+    setContent(details?.description ?? "");
+    setSurname(details?.lastName ?? "");
+    setGender(details?.gender === 0 ? "Male" : "Female" ?? "");
+    setEmail(details?.email ?? "");
+    setPhoneNumber(details?.phoneNumber ?? "");
+    setImageUrl(details?.imageUrl ?? "");
+    setRatePerHour(details?.ratePerHour ?? 0);
+  }, [details]);
 
   return (
     <>
