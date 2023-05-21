@@ -56,23 +56,38 @@ namespace DogWalkingAPI.Controllers
         // POST: api/Availabilities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("ChangeLocation")]
-        public async Task<ActionResult<Availability>> ChangeLocation(string username, double lat, double lng, double radius)
+        public async Task<ActionResult<Availability>> ChangeLocation(string userName, double lat, double lng, double radius)
         {
-            // todo - arguments are strings, convert them to availabilities
-            //if (_context.Availabilities == null)
-            //{
-            //    return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
-            //}
-            //foreach (Availability availability in availabilities)
-            //{
-            //    if (AvailabilityExists(availability.WalkerId, availability.StartTime))
-            //    {
-            //        return Conflict();
-            //    }
-            //    _context.Availabilities.Add(availability);
-            //}
-            //await _context.SaveChangesAsync();
+            if (_context.Availabilities == null)
+            {
+                return Problem("Entity set 'DataBaseContext.Availabilities'  is null.");
+            }
+            User? user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            if (user == null)
+            {
+                return NotFound("User " + userName + " not found!");
+            }
+            var availabilities = _context.Availabilities.Where(a => a.WalkerId == user.UserId).ToList();
+            foreach (Availability availability in availabilities)
+            {
+                availability.Latitude = lat;
+                availability.Longitude = lng;
+                availability.Radius = radius;
+            }
+            await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        // GET: api/Availabilities/GetWalkers
+        [HttpGet("GetWalkers")]
+        public ActionResult<IEnumerable<Availability>> GetWalkers(double lat, double lng, double maximumRange, string startDate, string endDate)
+        {
+            // todo
+            if (_context.Availabilities == null)
+            {
+                return NotFound();
+            }
+            return _context.Availabilities.Where(a => a.WalkerId == walkerId).ToList();
         }
 
         // ---------------------------------------
