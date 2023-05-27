@@ -34,7 +34,7 @@ namespace DogWalkingAPI.Controllers
             using (SHA256 hashFunction = SHA256.Create())
             {
                 byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hashedPassword = System.Text.Encoding.Default.GetString(hashValue);
+                string hashedPassword = Encoding.Default.GetString(hashValue);
                 if (_context.Users.FirstOrDefault(u => u.UserName.Equals(username) && u.UserPassword.Equals(password)) != null)
                 {
                     return Ok();
@@ -47,6 +47,17 @@ namespace DogWalkingAPI.Controllers
         [HttpPost("Register")]
         public ActionResult<User> Register(User user)
         {
+            User newUser = new User();
+            newUser.UserName = user.UserName;
+            newUser.FirstName = user.FirstName;
+            newUser.LastName = user.LastName;
+            newUser.Email = user.Email;
+            using (SHA256 hashFunction = SHA256.Create())
+            {
+                byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(user.UserPassword));
+                string hashedPassword = Encoding.Default.GetString(hashValue);
+                newUser.UserPassword = hashedPassword;
+            }
             _context.Users.Add(user);
             try
             {

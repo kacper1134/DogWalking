@@ -78,18 +78,58 @@ namespace DogWalkingAPI.Controllers
             return Ok();
         }
 
+        //[EdmFunction("Availability", "IsInRange")]
+        //public static int YearsSince(DateTime date)
+        //{
+        //    throw new NotSupportedException("Direct calls are not supported.");
+        //}
+
         // GET: api/Availabilities/GetWalkers
         [HttpGet("GetWalkers")]
-        public ActionResult<IEnumerable<Availability>> GetWalkers(double lat, double lng, double maximumRange, string startDate, string endDate)
+        public ActionResult<IEnumerable<Availability>> GetWalkers(double lat, double lng, double maximumRange, 
+            string startDate, string endDate)
         {
-            // todo
-            //if (_context.Availabilities == null)
-            //{
-            //    return NotFound();
-            //}
-            //return _context.Availabilities.Where(a => a.WalkerId == walkerId).ToList();
+            if (_context.Availabilities == null)
+            {
+                return NotFound();
+            }
+            //var foundAvailabilities = from a in _context.Availabilities
+            //                          where IsInRange(a.Latitude, a.Latitude, a.Radius, lat, lng, maximumRange)
+            //                          select a;
+            //var users = foundAvailabilities
+            var foundAvailabilities = new LinkedList<Availability>();
+            var x = _context.Availabilities.Where(a => true);
+            return foundAvailabilities.ToList();
             return Ok();
         }
+
+        //bool IsInRange(double x1, double y1, double r1, double x2, double y2, double r2)
+        //{
+        //    //double d = Math.Sqrt((x1 - x2) * (x1 - x2)
+        //    //                + (y1 - y2) * (y1 - y2));
+
+        //    //if (d <= r1 - r2)
+        //    //{
+        //    //    return true;
+        //    //}
+        //    //else if (d <= r2 - r1)
+        //    //{
+        //    //    return true;
+        //    //}
+        //    //else if (d < r1 + r2)
+        //    //{
+        //    //    return true;
+        //    //}
+        //    //else if (d == r1 + r2)
+        //    //{
+        //    //    return true;
+        //    //}
+        //    //else
+        //    //{
+        //    //    return false;
+        //    //}
+        //    return true;
+        //}
 
         // ---------------------------------------
 
