@@ -19,7 +19,9 @@ import {
   SimpleGrid,
   Flex,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { AiFillPhone } from "react-icons/ai";
@@ -27,6 +29,11 @@ import { FaUserCircle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { RiUserFill } from "react-icons/ri";
 import { TbPigMoney } from "react-icons/tb";
+import storage from "../../../config/firebase-config";
+import {
+  RegisterUserFields,
+  useUpdateUserDetailsMutation,
+} from "../../../store/userApiSlice";
 import {
   getErrorMessageForEmail,
   getErrorMessageForFirstName,
@@ -47,8 +54,10 @@ interface UserDetailsEditModalProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   content: string;
   setContent: React.Dispatch<React.SetStateAction<string>>;
-  imageUrl: string;
-  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
+  setPictureUrl: React.Dispatch<React.SetStateAction<string>>;
+  picture: File | null | undefined;
+  setPicture: React.Dispatch<React.SetStateAction<File | null | undefined>>;
+  inititalPictureUrl: string;
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
   surname: string;
@@ -61,6 +70,7 @@ interface UserDetailsEditModalProps {
   setGender: React.Dispatch<React.SetStateAction<"Male" | "Female">>;
   ratePerHour: number;
   setRatePerHour: React.Dispatch<React.SetStateAction<number>>;
+  userData: RegisterUserFields;
 }
 
 export interface UserDetailsType {
@@ -78,7 +88,28 @@ export interface UserDetailsType {
 const GenderSelectElementData = {
   label: "Gender",
   placeholder: "Select gender",
-  options: ["Male", "Female", "Other", "Prefer not to disclose"],
+  options: ["Male", "Female"],
+};
+
+const createGUID = () => {
+  function S4() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  }
+
+  return (
+    S4() +
+    S4() +
+    "-" +
+    S4() +
+    "-4" +
+    S4().substring(0, 3) +
+    "-" +
+    S4() +
+    "-" +
+    S4() +
+    S4() +
+    S4()
+  ).toLowerCase();
 };
 
 const UserDetailsEditModal = ({
@@ -86,8 +117,10 @@ const UserDetailsEditModal = ({
   setIsOpen,
   content,
   setContent,
-  imageUrl,
-  setImageUrl,
+  picture,
+  setPicture,
+  inititalPictureUrl,
+  setPictureUrl,
   name,
   setName,
   surname,
@@ -100,6 +133,7 @@ const UserDetailsEditModal = ({
   setGender,
   ratePerHour,
   setRatePerHour,
+  userData,
 }: UserDetailsEditModalProps) => {
   const [changedName, setChangedName] = useState(name);
   const [changedContent, setChangedContent] = useState(content);
@@ -107,7 +141,7 @@ const UserDetailsEditModal = ({
   const [changedGender, setChangedGender] = useState(gender);
   const [changedEmail, setChangedEmail] = useState(email);
   const [changedPhoneNumber, setChangedPhoneNumber] = useState(phoneNumber);
-  const [changedImageUrl, setChangedImageUrl] = useState(imageUrl);
+  const [changedImageUrl, setChangedImageUrl] = useState(inititalPictureUrl);
   const [changedRatePerHour, setChangedRatePerHour] = useState(ratePerHour);
 
   const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
@@ -116,6 +150,9 @@ const UserDetailsEditModal = ({
   const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = useState("");
   const [ratePerHourErrorMessage, setRatePerHourErrorMessage] = useState("");
 
+  const [updateUserDetails] = useUpdateUserDetailsMutation();
+  const toast = useToast();
+  
   useEffect(() => {
     if (isOpen) {
       clearChanges();
@@ -128,14 +165,15 @@ const UserDetailsEditModal = ({
     setChangedSurname(surname);
     setChangedGender(gender);
     setChangedPhoneNumber(phoneNumber);
-    setChangedImageUrl(imageUrl);
     setChangedEmail(email);
     setChangedRatePerHour(ratePerHour);
+    setChangedImageUrl("");
     setFirstNameErrorMessage("");
     setLastNameErrorMessage("");
     setEmailErrorMessage("");
     setPhoneNumberErrorMessage("");
     setRatePerHourErrorMessage("");
+    setPictureUrl("");
   };
 
   const onSubmitHandler = () => {
@@ -173,17 +211,91 @@ const UserDetailsEditModal = ({
       isInvalid = true;
     }
 
-    if (!isInvalid) {
-      setName(changedName);
-      setSurname(changedSurname);
-      setContent(changedContent);
-      setGender(changedGender);
-      setEmail(changedEmail);
-      setPhoneNumber(changedPhoneNumber);
-      setImageUrl(changedImageUrl);
-      setRatePerHour(Math.max(changedRatePerHour, 0));
-      setIsOpen(false);
+    saveImage().then((path) => {
+      if (!isInvalid) {
+        const oldData = { ...userData };
+        oldData.FirstName = changedName;
+        oldData.LastName = changedSurname;
+        oldData.Description = changedContent;
+        oldData.Gender = changedGender === "Male" ? 0 : 1;
+        oldData.Email = changedEmail;
+        oldData.PhoneNumber = changedPhoneNumber;
+        oldData.ImageUrl = path ?? inititalPictureUrl;
+        oldData.RatePerHour = changedRatePerHour;
+        
+        updateUserDetails(oldData).then((result) => {
+          if ("error" in result) {
+            toast({
+              title: "Update Account",
+              description: "Could not update user details",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          } else {
+            toast({
+              title: "Update Account",
+              description: "Updated successfully",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            setName(changedName);
+            setSurname(changedSurname);
+            setContent(changedContent);
+            setGender(changedGender);
+            setEmail(changedEmail);
+            setPhoneNumber(changedPhoneNumber);
+            setPictureUrl(path!);
+            setRatePerHour(Math.max(changedRatePerHour, 0));
+            setIsOpen(false);
+          }
+        });
+      }
+    });
+  };
+
+  const saveImage = async () => {
+    let currentImageProfilePath: string | undefined = userData?.ImageUrl;
+    let profilePath: string | undefined = "";
+    
+    if (picture && picture !== undefined) {
+      profilePath = await createImage();
+      
+      if (profilePath === undefined || profilePath === "") {
+        return;
+      }
+      
+      if (currentImageProfilePath !== "") {
+        await deleteImage(currentImageProfilePath!);
+      }
+    } else {
+      profilePath = currentImageProfilePath;
     }
+    return profilePath;
+  };
+
+  const createImage = async () => {
+    const profileImagePath =
+      "userImages/" + createGUID() + "." + picture?.name.split(".").pop();
+    const profileImageRef = ref(storage, profileImagePath);
+    const result = await uploadBytes(profileImageRef, picture!).catch(() => {
+      toast({
+        title: "Update Account",
+        description: "Your profile image size is too big, maximum is 5MB!",
+        status: "error",
+        isClosable: true,
+      });
+      setIsOpen(false);
+      return undefined;
+    });
+    if (result === undefined) return undefined;
+    return profileImagePath;
+  };
+
+  const deleteImage = async (currentImageProfilePath: string) => {
+    const profileImageRef = ref(storage, currentImageProfilePath);
+    deleteObject(profileImageRef).then(() => setPictureUrl("")).catch(() => {});
   };
 
   return (
@@ -263,9 +375,9 @@ const UserDetailsEditModal = ({
           </SimpleGrid>
           <Flex as={Center} pb="30px" direction={{ base: "column", md: "row" }}>
             <EditImageInput
-              inititalPictureUrl={changedImageUrl ?? ""}
-              setImageUrl={setChangedImageUrl}
-              picture={null}
+              inititalPictureUrl={inititalPictureUrl}
+              setPicture={setPicture}
+              picture={picture}
             />
             <FormControl alignSelf="start">
               <FormLabel

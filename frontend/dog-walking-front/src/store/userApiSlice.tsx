@@ -5,7 +5,7 @@ interface LoginCredentials {
   password: string;
 }
 
-interface RegisterUserFields {
+export interface RegisterUserFields {
   UserName: string;
   LastName: string;
   FirstName: string;
@@ -23,7 +23,7 @@ interface RegisterUserFields {
   Availabilities: [];
 }
 
-interface UserData {
+export interface UserData {
   userName: string;
   lastName: string;
   firstName: string;
@@ -48,7 +48,7 @@ const baseQuery = fetchBaseQuery({
 const userApiSlice = createApi({
   reducerPath: "userApi",
   baseQuery: baseQuery,
-  tagTypes: [],
+  tagTypes: ["UserDetails"],
   endpoints: (builder) => ({
     login: builder.mutation<void, LoginCredentials>({
       query: (params) => ({
@@ -65,11 +65,25 @@ const userApiSlice = createApi({
     }),
     getUser: builder.query<UserData, string>({
       query: (params) => ({
-        url: `/api/Users/${params}`
-      })
-    })
+        url: `/api/Users/${params}`,
+      }),
+      providesTags: ["UserDetails"],
+    }),
+    updateUserDetails: builder.mutation<void, RegisterUserFields>({
+      query: (params) => ({
+        url: `/api/Users/${params.UserName}`,
+        method: "Put",
+        body: params,
+      }),
+      invalidatesTags: ["UserDetails"],
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetUserQuery } = userApiSlice;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetUserQuery,
+  useUpdateUserDetailsMutation,
+} = userApiSlice;
 export default userApiSlice;

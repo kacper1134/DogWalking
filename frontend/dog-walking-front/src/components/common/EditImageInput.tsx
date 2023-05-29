@@ -1,30 +1,28 @@
 import {
   Avatar,
   Button,
-  Center,
   FormControl,
   FormLabel,
-  HStack,
   Icon,
   Input,
-  Text,
   useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { RiImageAddFill } from "react-icons/ri";
+import useGetFirebaseImage from "../../hooks/useGetFirebaseImage";
 import { detailsModalFontSize } from "../Profile/UserSection/UserDetailsModalDimensions";
 
 interface EditImageInputProps {
   picture: File | null | undefined;
   inititalPictureUrl: string;
-  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
+  setPicture: React.Dispatch<React.SetStateAction<File | null | undefined>>;
 }
 
 const EditImageInput = ({
   picture,
   inititalPictureUrl,
-  setImageUrl,
+  setPicture,
 }: EditImageInputProps) => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
   const [newImageUrl, setNewImageUrl] = useState("");
@@ -44,6 +42,17 @@ const EditImageInput = ({
     setCurrentPicture(picture);
   }, [picture]);
 
+  const getImage = useGetFirebaseImage();
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    if (inititalPictureUrl !== "") {
+      getImage(inititalPictureUrl)
+        .then((url) => setImage(url))
+        .catch(() => setImage(""));
+    }
+  }, [getImage, inititalPictureUrl]);
+
   const toast = useToast();
 
   const onSubmit = (currentPicture: File | null | undefined) => {
@@ -56,9 +65,9 @@ const EditImageInput = ({
       });
       return;
     }
-    setCurrentPicture(currentPicture);
+    setPicture(currentPicture);
   };
-
+  
   return (
     <FormControl w="50%" alignSelf="start" pb="20px">
       <FormLabel fontSize={detailsModalFontSize} fontWeight="bold">Image</FormLabel>
@@ -66,7 +75,7 @@ const EditImageInput = ({
         <Avatar
           borderRadius="10px"
           boxSize={imageSize}
-          src={currentPicture ? newImageUrl : inititalPictureUrl}
+          src={newImageUrl !== "" ? newImageUrl : image}
           position="relative"
         >
           <Button

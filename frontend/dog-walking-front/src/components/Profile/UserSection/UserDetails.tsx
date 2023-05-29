@@ -8,8 +8,13 @@ import {
 import { useEffect, useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
 import { useSelector } from "react-redux";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
 import { RootState } from "../../../store";
-import { useGetUserQuery } from "../../../store/userApiSlice";
+import {
+  RegisterUserFields,
+  useGetUserQuery,
+  UserData,
+} from "../../../store/userApiSlice";
 import Card from "../../Card";
 import AvatarCard from "./AvatarCard";
 import DataCard, { Data } from "./DataCard";
@@ -46,8 +51,10 @@ const UserDetails = () => {
   );
   const [email, setEmail] = useState(details?.email ?? "");
   const [phoneNumber, setPhoneNumber] = useState(details?.phoneNumber ?? "");
-  const [imageUrl, setImageUrl] = useState(details?.imageUrl ?? "");
+  const [picture, setPicture] = useState<File | null>();
+  const [inititalPictureUrl, setInititalPictureUrl] = useState("");
   const [ratePerHour, setRatePerHour] = useState(details?.ratePerHour ?? 0);
+  const [userData, setUserData] = useState<RegisterUserFields | null>(null);
 
   const contactInformation: Data[] = [
     {
@@ -75,6 +82,8 @@ const UserDetails = () => {
     },
   ];
 
+  const getImage = useGetFirebaseImage();
+
   useEffect(() => {
     setName(details?.firstName ?? "");
     setContent(details?.description ?? "");
@@ -82,10 +91,30 @@ const UserDetails = () => {
     setGender(details?.gender === 0 ? "Male" : "Female" ?? "");
     setEmail(details?.email ?? "");
     setPhoneNumber(details?.phoneNumber ?? "");
-    setImageUrl(details?.imageUrl ?? "");
+    setPicture(null);
     setRatePerHour(details?.ratePerHour ?? 0);
+
+    const oldDetails: any = {};
+
+    for (let key in details) {
+      const titleCaseKey = key
+        .split(" ")
+        .map((word) => word.charAt(0).toLocaleUpperCase() + word.slice(1))
+        .join(" ");
+      //@ts-ignore
+      oldDetails[titleCaseKey] = details[key] ?? [];
+    }
+    setUserData(oldDetails);
   }, [details]);
 
+  useEffect(() => {
+    if (userData?.ImageUrl !== undefined && userData!.ImageUrl !== "") {
+      getImage(userData.ImageUrl)
+        .then((url) => setInititalPictureUrl(url))
+        .catch(() => setInititalPictureUrl(""));
+    }
+  }, [getImage, userData])
+  
   return (
     <>
       <Center w="100%">
@@ -123,7 +152,7 @@ const UserDetails = () => {
             userDetails={{
               name: name,
               surname: surname,
-              imageUrl: imageUrl ?? "",
+              imageUrl: inititalPictureUrl ?? "",
               content: content,
             }}
           />
@@ -150,8 +179,10 @@ const UserDetails = () => {
         setIsOpen={setIsEditUserDetailsModalOpen}
         content={content}
         setContent={setContent}
-        imageUrl={imageUrl}
-        setImageUrl={setImageUrl}
+        picture={picture}
+        setPicture={setPicture}
+        setPictureUrl={setInititalPictureUrl}
+        inititalPictureUrl={inititalPictureUrl}
         name={name}
         setName={setName}
         surname={surname}
@@ -164,6 +195,7 @@ const UserDetails = () => {
         ratePerHour={ratePerHour}
         setRatePerHour={setRatePerHour}
         setGender={setGender}
+        userData={userData!}
       />
     </>
   );
