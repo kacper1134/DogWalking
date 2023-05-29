@@ -101,12 +101,25 @@ namespace DogWalkingAPI.Controllers
         [HttpPut("{username}")]
         public async Task<ActionResult<User>> EditUser(string username, User user)
         {
+            //username, firstName, lastName, description, gender, ratePerHour, email, phoneNumber
             if (username != user.UserName)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            var userFound = _context.Users.FirstOrDefault(u => u.UserName.Equals(username));
+            if (userFound == null)
+            {
+                return NotFound();
+            }
+            userFound.UserName = user.UserName;
+            userFound.FirstName = user.FirstName;
+            userFound.LastName = user.LastName;
+            userFound.Email = user.Email;
+            userFound.Description = user.Description;
+            userFound.Gender = user.Gender;
+            userFound.RatePerHour = user.RatePerHour;
+            userFound.PhoneNumber = user.PhoneNumber;
 
             try
             {
@@ -114,14 +127,8 @@ namespace DogWalkingAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
-
-                if (userFound != null)
-                {
-                    return userFound;
-                }
             }
-            return NotFound();
+            return Ok();
         }
 
         // GET: api/Users/GetUserDogs
