@@ -120,6 +120,7 @@ namespace DogWalkingAPI.Controllers
             userFound.Gender = user.Gender;
             userFound.RatePerHour = user.RatePerHour;
             userFound.PhoneNumber = user.PhoneNumber;
+            userFound.ImageUrl = user.ImageUrl;
 
             try
             {
