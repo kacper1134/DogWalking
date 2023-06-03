@@ -4,6 +4,7 @@ using DogWalkingAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DogWalkingAPI.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230603172626_availability-fix-2")]
+    partial class availabilityfix2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,11 +30,11 @@ namespace DogWalkingAPI.Migrations
 
             modelBuilder.Entity("DogWalkingAPI.Model.Availability", b =>
                 {
-                    b.Property<int>("AvailabilityId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("WalkerId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvailabilityId"));
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
@@ -45,18 +48,7 @@ namespace DogWalkingAPI.Migrations
                     b.Property<double>("Radius")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WalkerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AvailabilityId");
-
-                    b.HasIndex("UserId");
+                    b.HasKey("WalkerId", "StartTime");
 
                     b.ToTable("Availabilities");
                 });
@@ -207,9 +199,13 @@ namespace DogWalkingAPI.Migrations
 
             modelBuilder.Entity("DogWalkingAPI.Model.Availability", b =>
                 {
-                    b.HasOne("DogWalkingAPI.Model.User", null)
-                        .WithMany("Availabilities")
-                        .HasForeignKey("UserId");
+                    b.HasOne("DogWalkingAPI.Model.User", "Walker")
+                        .WithMany()
+                        .HasForeignKey("WalkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Walker");
                 });
 
             modelBuilder.Entity("DogWalkingAPI.Model.Dog", b =>
@@ -264,8 +260,6 @@ namespace DogWalkingAPI.Migrations
 
             modelBuilder.Entity("DogWalkingAPI.Model.User", b =>
                 {
-                    b.Navigation("Availabilities");
-
                     b.Navigation("Dogs");
 
                     b.Navigation("OwnerWalks");

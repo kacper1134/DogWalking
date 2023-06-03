@@ -4,6 +4,7 @@ using DogWalkingAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DogWalkingAPI.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230603172310_availability-fix")]
+    partial class availabilityfix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,11 +30,11 @@ namespace DogWalkingAPI.Migrations
 
             modelBuilder.Entity("DogWalkingAPI.Model.Availability", b =>
                 {
-                    b.Property<int>("AvailabilityId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("WalkerId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvailabilityId"));
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
@@ -45,16 +48,10 @@ namespace DogWalkingAPI.Migrations
                     b.Property<double>("Radius")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WalkerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AvailabilityId");
+                    b.HasKey("WalkerId", "StartTime");
 
                     b.HasIndex("UserId");
 

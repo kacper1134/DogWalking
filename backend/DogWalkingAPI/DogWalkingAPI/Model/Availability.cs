@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DogWalkingAPI.Model
 {
-    [PrimaryKey(nameof(WalkerId), nameof(StartTime))]
+    //[PrimaryKey(nameof(WalkerId), nameof(StartTime))]
     public class Availability
     {
+        //[ForeignKey("WalkerId")]
+        //virtual public User Walker { get; set; }
+        [Key]
+        virtual public int AvailabilityId { get; set; }
+
         [Required]
         virtual public int WalkerId { get; set; }
-
-        [ForeignKey("WalkerId")]
-        virtual public User Walker { get; set; }
 
         virtual public DateTime StartTime { get; set; }
 

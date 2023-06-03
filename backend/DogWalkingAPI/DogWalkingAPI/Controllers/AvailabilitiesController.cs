@@ -36,6 +36,7 @@ namespace DogWalkingAPI.Controllers
                 {
                     return Conflict();
                 }
+                _context.Users.FirstOrDefault(u => u.UserId == availability.WalkerId).Availabilities.Add(availability);
                 _context.Availabilities.Add(availability);
             }
             await _context.SaveChangesAsync();
