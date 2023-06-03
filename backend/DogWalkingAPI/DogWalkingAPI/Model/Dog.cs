@@ -6,15 +6,15 @@ namespace DogWalkingAPI.Model
     public class Dog
     {
         [Key]
-        public int DogId { get; set; }
+        virtual public int DogId { get; set; }
         [Required]
-        public string Name { get; set; }
+        virtual public string Name { get; set; }
         [Required]
-        public DateTime Birthday { get; set; }
+        virtual public DateTime Birthday { get; set; }
         [Required]
-        public string Description { get; set; }
+        virtual public string Description { get; set; }
         [Required]
-        public string ImageUrl { get; set; }
+        virtual public string ImageUrl { get; set; }
         //[ForeignKey("OwnerId")]
         //public User? Owner { get; set; }
         virtual public ICollection<DogWalk> Walks { get; set; }

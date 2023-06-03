@@ -134,13 +134,13 @@ namespace DogWalkingAPI.Controllers
 
         // GET: api/Users/GetUserDogs
         [HttpGet("GetUserDogs/{username}")]
-        public async Task<ActionResult<ICollection<Dog>>> GetUserDogs(string username)
+        public  ActionResult<ICollection<Dog>> GetUserDogs(string username)
         {
             if (_context.Users == null)
             {
                 return NotFound();
             }
-            var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
+            var userFound = _context.Users.FirstOrDefault(u => u.UserName.Equals(username));
 
             if (userFound == null)
             {
@@ -148,7 +148,7 @@ namespace DogWalkingAPI.Controllers
             }
 
             var dogs = userFound.Dogs;
-            if (dogs == null) return Enumerable.Empty<Dog>().ToList();
+            if (dogs == null) return NotFound(userFound);
 
             return dogs.ToList();
         }

@@ -5,9 +5,9 @@ namespace DogWalkingAPI.Model
     [PrimaryKey(nameof(DogId), nameof(WalkId))]
     public class DogWalk
     {
-        public int DogId { get; set; }
-        public int WalkId { get; set; }
-        public Dog Dog { get; set; }
-        public Walk Walk { get; set; }
+        virtual public int DogId { get; set; }
+        virtual public int WalkId { get; set; }
+        virtual public Dog Dog { get; set; }
+        virtual public Walk Walk { get; set; }
     }
 }

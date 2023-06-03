@@ -8,24 +8,24 @@ namespace DogWalkingAPI.Model
     public class Availability
     {
         [Required]
-        public int WalkerId { get; set; }
+        virtual public int WalkerId { get; set; }
 
         [ForeignKey("WalkerId")]
-        public User Walker { get; set; }
+        virtual public User Walker { get; set; }
 
-        public DateTime StartTime { get; set; }
-
-        [Required]
-        public DateTime EndTime { get; set; }
+        virtual public DateTime StartTime { get; set; }
 
         [Required]
-        public double Latitude { get; set; }
+        virtual public DateTime EndTime { get; set; }
 
         [Required]
-        public double Longitude { get; set; }
+        virtual public double Latitude { get; set; }
 
         [Required]
-        public double Radius { get; set; }
+        virtual public double Longitude { get; set; }
+
+        [Required]
+        virtual public double Radius { get; set; }
 
         bool IsInRange(double x2, double y2, double r2)
         {

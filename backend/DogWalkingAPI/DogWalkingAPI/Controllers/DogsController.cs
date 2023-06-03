@@ -99,10 +99,10 @@ namespace DogWalkingAPI.Controllers
                 return NotFound();
             }
             dog.Birthday = DateTime.Parse(birthday);
-            if (user.Dogs == null)
-            {
-                user.Dogs = new LinkedList<Dog>();
-            }
+            //if (user.Dogs == null)
+            //{
+            //    user.Dogs = new LinkedList<Dog>();
+            //}
             user.Dogs.Add(dog);
             _context.Dogs.Add(dog);
             await _context.SaveChangesAsync();
@@ -137,8 +137,8 @@ namespace DogWalkingAPI.Controllers
 
         private async Task<User> FindUserByUsername(string username)
         {
-           var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
-            return user;
+           var user = await _context.Users.Include(u => u.Dogs).FirstOrDefaultAsync(u => u.UserName.Equals(username));
+           return user;
         }
     }
 }

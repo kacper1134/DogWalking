@@ -7,13 +7,13 @@ namespace DogWalkingAPI.Model
     public class Walk
     {
         [Key]
-        public int WalkId { get; set; }
+        virtual public int WalkId { get; set; }
 
         [Required]
-        public int OwnerId { get; set; }
+        virtual public int OwnerId { get; set; }
 
         [Required]
-        public int WalkerId { get; set; }
+        virtual public int WalkerId { get; set; }
 
         [ForeignKey("WalkerId")]
         virtual public User? Walker { get; set; }
@@ -22,16 +22,16 @@ namespace DogWalkingAPI.Model
         virtual public User? Owner { get; set; }
 
         [Required]
-        public DateTime StartTime { get; set; }
+        virtual public DateTime StartTime { get; set; }
 
         [Required]
-        public DateTime EndTime { get; set; }
+        virtual public DateTime EndTime { get; set; }
 
-        public double Rating { get; set; }
+        virtual public double Rating { get; set; }
 
-        public string Content { get; set; }
+        virtual public string Content { get; set; }
 
         [Required]
-        public ICollection<DogWalk> Dogs { get; set; }
+        virtual public ICollection<DogWalk> Dogs { get; set; }
     }
 }

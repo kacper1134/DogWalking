@@ -4,7 +4,9 @@ namespace DogWalkingAPI.Model
 {
     public class DataBaseContext : DbContext
     {
-        public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options) { }
+        public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options) {
+            
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
