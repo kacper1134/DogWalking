@@ -58,7 +58,7 @@ const DogCreateEditModal = ({
   const [changedName, setChangedName] = useState(name);
   const [changedBirthday, setChangedBirthday] = useState(birthday);
   const [changedContent, setChangedContent] = useState(content);
-  const [changedImageUrl, setChangedImageUrl] = useState(imageUrl);
+  const [changedImageUrl, setChangedImageUrl] = useState(imageUrl ?? "");
 
   const [nameErrorMessage, setNameErrorMessage] = useState("");
   const [birthdayErrorMessage, setBirthdayErrorMessage] = useState("");
@@ -73,7 +73,7 @@ const DogCreateEditModal = ({
     setChangedName(name);
     setChangedBirthday(birthday);
     setChangedContent(content);
-    setChangedImageUrl(imageUrl);
+    setChangedImageUrl(imageUrl ?? "");
     setNameErrorMessage("");
     setBirthdayErrorMessage("");
   };
@@ -106,7 +106,7 @@ const DogCreateEditModal = ({
       setIsOpen(false);
     }
   };
-
+  const [picture, setPicture] = useState<File | null>();
   return (
     <Modal
       isOpen={isOpen}
@@ -147,7 +147,7 @@ const DogCreateEditModal = ({
           <Flex as={Center} pb="30px" direction={{ base: "column", md: "row" }}>
             <EditImageInput
               inititalPictureUrl={changedImageUrl ?? ""}
-              setImageUrl={setChangedImageUrl}
+              setPicture={setPicture}
               picture={null}
             />
             <FormControl alignSelf="start">

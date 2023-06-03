@@ -34,7 +34,7 @@ namespace DogWalkingAPI.Controllers
             using (SHA256 hashFunction = SHA256.Create())
             {
                 byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(password));
-                string hashedPassword = System.Text.Encoding.Default.GetString(hashValue);
+                string hashedPassword = Encoding.Default.GetString(hashValue);
                 if (_context.Users.FirstOrDefault(u => u.UserName.Equals(username) && u.UserPassword.Equals(password)) != null)
                 {
                     return Ok();
@@ -47,6 +47,17 @@ namespace DogWalkingAPI.Controllers
         [HttpPost("Register")]
         public ActionResult<User> Register(User user)
         {
+            User newUser = new User();
+            newUser.UserName = user.UserName;
+            newUser.FirstName = user.FirstName;
+            newUser.LastName = user.LastName;
+            newUser.Email = user.Email;
+            using (SHA256 hashFunction = SHA256.Create())
+            {
+                byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(user.UserPassword));
+                string hashedPassword = Encoding.Default.GetString(hashValue);
+                newUser.UserPassword = hashedPassword;
+            }
             _context.Users.Add(user);
             try
             {
@@ -90,12 +101,26 @@ namespace DogWalkingAPI.Controllers
         [HttpPut("{username}")]
         public async Task<ActionResult<User>> EditUser(string username, User user)
         {
+            //username, firstName, lastName, description, gender, ratePerHour, email, phoneNumber
             if (username != user.UserName)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            var userFound = _context.Users.FirstOrDefault(u => u.UserName.Equals(username));
+            if (userFound == null)
+            {
+                return NotFound();
+            }
+            userFound.UserName = user.UserName;
+            userFound.FirstName = user.FirstName;
+            userFound.LastName = user.LastName;
+            userFound.Email = user.Email;
+            userFound.Description = user.Description;
+            userFound.Gender = user.Gender;
+            userFound.RatePerHour = user.RatePerHour;
+            userFound.PhoneNumber = user.PhoneNumber;
+            userFound.ImageUrl = user.ImageUrl;
 
             try
             {
@@ -103,14 +128,8 @@ namespace DogWalkingAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                var userFound = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
-
-                if (userFound != null)
-                {
-                    return userFound;
-                }
             }
-            return NotFound();
+            return Ok();
         }
 
         // GET: api/Users/GetUserDogs

@@ -34,6 +34,7 @@ import {
   getErrorMessageForPassword,
   getErrorMessageForUsername,
 } from "./RegisterFormErrorMessageFunctions";
+import { useRegisterMutation } from "../../../store/userApiSlice";
 
 export const RegisterForm = () => {
   const headingSize = useBreakpointValue(headerFontSize);
@@ -230,7 +231,7 @@ const InputWithIcon = ({
     <FormControl>
       <InputGroup>
         <InputLeftElement>
-          <Icon as={icon} fontSize={fontSize}  />
+          <Icon as={icon} fontSize={fontSize} />
         </InputLeftElement>
 
         <Input
@@ -295,6 +296,7 @@ const RegisterButton = ({
 }: RegisterButtonProps) => {
   const toast = useToast();
   const navigate = useNavigate();
+  const [registerMutation] = useRegisterMutation();
 
   const registerHandler = () => {
     var isInvalid = false;
@@ -340,14 +342,42 @@ const RegisterButton = ({
     }
 
     if (!isInvalid) {
-      toast({
-        title: "Account created.",
-        description: "We've created your account for you.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+      registerMutation({
+        UserName: username,
+        LastName: lastName,
+        FirstName: firstName,
+        Age: 22,
+        Email: email,
+        UserPassword: password,
+        ImageUrl: "",
+        PhoneNumber: "",
+        Description: "",
+        Gender: 0,
+        RatePerHour: 10,
+        Dogs: [],
+        OwnerWalks: [],
+        WalkerWalks: [],
+        Availabilities: [],
+      }).then((result) => {
+        if ("error" in result) {
+          toast({
+            title: "Could not regiser",
+            description: "Username or login are already in use!",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: "Account created.",
+            description: "We've created your account for you.",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+          });
+          navigate("/login");
+        }
       });
-      navigate("/login");
     }
   };
   return (

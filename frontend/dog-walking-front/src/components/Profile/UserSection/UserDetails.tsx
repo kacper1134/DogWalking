@@ -5,8 +5,16 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiFillEdit } from "react-icons/ai";
+import { useSelector } from "react-redux";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
+import { RootState } from "../../../store";
+import {
+  RegisterUserFields,
+  useGetUserQuery,
+  UserData,
+} from "../../../store/userApiSlice";
 import Card from "../../Card";
 import AvatarCard from "./AvatarCard";
 import DataCard, { Data } from "./DataCard";
@@ -21,21 +29,7 @@ import {
   mainPadding,
   width,
 } from "./ProfileDetailsDimensions";
-import UserDetailsEditModal, { UserDetailsType } from "./UserDetailsEditModal";
-
-const MOCK_USER_DETAILS: UserDetailsType = {
-  name: "Kacper",
-  surname: "Kochański",
-  email: "kacper2000@o2.pl",
-  ratePerHour: 50,
-  phoneNumber: "",
-  imageUrl:
-    "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80",
-  username: "kacper1134",
-  gender: null,
-  description:
-    "<p>Hi there! My name is Kacper and I'm a proud dog owner. My furry friend is more than just a pet - they're a loyal companion who brings so much joy and happiness into my life. I'm passionate about providing the best possible care for my dog, including regular exercise, proper nutrition, and plenty of playtime. When I'm not spending time with my dog, I enjoy reading books about dog behavior and training, as well as exploring new parks and trails together.</p>",
-};
+import UserDetailsEditModal from "./UserDetailsEditModal";
 
 const UserDetails = () => {
   const columns = useBreakpointValue({
@@ -44,17 +38,23 @@ const UserDetails = () => {
     "2xl": 3,
   });
 
+  const username = useSelector((state: RootState) => state.auth.username);
+  const { data: details } = useGetUserQuery(username);
+
   const [isEditUserDetailsModalOpen, setIsEditUserDetailsModalOpen] =
     useState(false);
-
-  const [name, setName] = useState(MOCK_USER_DETAILS.name);
-  const [content, setContent] = useState(MOCK_USER_DETAILS.description);
-  const [surname, setSurname] = useState(MOCK_USER_DETAILS.surname);
-  const [gender, setGender] = useState(MOCK_USER_DETAILS.gender);
-  const [email, setEmail] = useState(MOCK_USER_DETAILS.email);
-  const [phoneNumber, setPhoneNumber] = useState(MOCK_USER_DETAILS.phoneNumber);
-  const [imageUrl, setImageUrl] = useState(MOCK_USER_DETAILS.imageUrl);
-  const [ratePerHour, setRatePerHour] = useState(MOCK_USER_DETAILS.ratePerHour);
+  const [name, setName] = useState(details?.firstName ?? "");
+  const [content, setContent] = useState(details?.description ?? "");
+  const [surname, setSurname] = useState(details?.lastName ?? "");
+  const [gender, setGender] = useState<"Male" | "Female">(
+    details?.gender === 0 ? "Male" : "Female" ?? ""
+  );
+  const [email, setEmail] = useState(details?.email ?? "");
+  const [phoneNumber, setPhoneNumber] = useState(details?.phoneNumber ?? "");
+  const [picture, setPicture] = useState<File | null>();
+  const [inititalPictureUrl, setInititalPictureUrl] = useState("");
+  const [ratePerHour, setRatePerHour] = useState(details?.ratePerHour ?? 0);
+  const [userData, setUserData] = useState<RegisterUserFields | null>(null);
 
   const contactInformation: Data[] = [
     {
@@ -70,7 +70,7 @@ const UserDetails = () => {
   const personalDetails: Data[] = [
     {
       label: "Username",
-      value: MOCK_USER_DETAILS.username,
+      value: username,
     },
     {
       label: "Gender",
@@ -81,6 +81,39 @@ const UserDetails = () => {
       value: "$" + ratePerHour,
     },
   ];
+
+  const getImage = useGetFirebaseImage();
+
+  useEffect(() => {
+    setName(details?.firstName ?? "");
+    setContent(details?.description ?? "");
+    setSurname(details?.lastName ?? "");
+    setGender(details?.gender === 0 ? "Male" : "Female" ?? "");
+    setEmail(details?.email ?? "");
+    setPhoneNumber(details?.phoneNumber ?? "");
+    setPicture(null);
+    setRatePerHour(details?.ratePerHour ?? 0);
+
+    const oldDetails: any = {};
+
+    for (let key in details) {
+      const titleCaseKey = key
+        .split(" ")
+        .map((word) => word.charAt(0).toLocaleUpperCase() + word.slice(1))
+        .join(" ");
+      //@ts-ignore
+      oldDetails[titleCaseKey] = details[key] ?? [];
+    }
+    setUserData(oldDetails);
+  }, [details]);
+
+  useEffect(() => {
+    if (userData?.ImageUrl !== undefined && userData!.ImageUrl !== "") {
+      getImage(userData.ImageUrl)
+        .then((url) => setInititalPictureUrl(url))
+        .catch(() => setInititalPictureUrl(""));
+    }
+  }, [getImage, userData])
   
   return (
     <>
@@ -119,7 +152,7 @@ const UserDetails = () => {
             userDetails={{
               name: name,
               surname: surname,
-              imageUrl: imageUrl ?? "",
+              imageUrl: inititalPictureUrl ?? "",
               content: content,
             }}
           />
@@ -146,8 +179,10 @@ const UserDetails = () => {
         setIsOpen={setIsEditUserDetailsModalOpen}
         content={content}
         setContent={setContent}
-        imageUrl={imageUrl}
-        setImageUrl={setImageUrl}
+        picture={picture}
+        setPicture={setPicture}
+        setPictureUrl={setInititalPictureUrl}
+        inititalPictureUrl={inititalPictureUrl}
         name={name}
         setName={setName}
         surname={surname}
@@ -160,6 +195,7 @@ const UserDetails = () => {
         ratePerHour={ratePerHour}
         setRatePerHour={setRatePerHour}
         setGender={setGender}
+        userData={userData!}
       />
     </>
   );
