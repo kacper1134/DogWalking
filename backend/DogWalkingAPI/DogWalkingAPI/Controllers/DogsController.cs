@@ -83,12 +83,27 @@ namespace DogWalkingAPI.Controllers
         // POST: api/Dogs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Dog>> CreateDog(Dog dog)
+        public async Task<ActionResult<Dog>> CreateDog(string username, string dogName, string birthday, string description, string imageUrl)
         {
           if (_context.Dogs == null)
           {
               return Problem("Entity set 'DataBaseContext.Dogs'  is null.");
           }
+            Dog dog = new Dog();
+            dog.Description = description;
+            dog.ImageUrl = imageUrl;
+            dog.Name = dogName;
+            var user = FindUserByUsername(username).Result;
+            if (user == null)
+            {
+                return NotFound();
+            }
+            dog.Birthday = DateTime.Parse(birthday);
+            if (user.Dogs == null)
+            {
+                user.Dogs = new LinkedList<Dog>();
+            }
+            user.Dogs.Add(dog);
             _context.Dogs.Add(dog);
             await _context.SaveChangesAsync();
 
@@ -118,6 +133,12 @@ namespace DogWalkingAPI.Controllers
         private bool DogExists(int id)
         {
             return (_context.Dogs?.Any(e => e.DogId == id)).GetValueOrDefault();
+        }
+
+        private async Task<User> FindUserByUsername(string username)
+        {
+           var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName.Equals(username));
+            return user;
         }
     }
 }
