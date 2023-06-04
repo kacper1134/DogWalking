@@ -36,7 +36,9 @@ namespace DogWalkingAPI.Controllers
                 {
                     return Conflict();
                 }
-                _context.Users.FirstOrDefault(u => u.UserId == availability.WalkerId).Availabilities.Add(availability);
+                // dodać sprawdzanie czy user istnieje
+                // i wypadałoby dodać sprawdzanie czy żadna z dodawanych availability nie ma tego samego czasu rozpoczęcia
+                _context.Users.Include(u => u.Availabilities).FirstOrDefault(u => u.UserId == availability.WalkerId).Availabilities.Add(availability);
                 _context.Availabilities.Add(availability);
             }
             await _context.SaveChangesAsync();

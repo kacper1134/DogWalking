@@ -29,9 +29,14 @@ namespace DogWalkingAPI.Model
 
         virtual public double Rating { get; set; }
 
-        virtual public string Content { get; set; }
+        virtual public string? Content { get; set; }
 
         [Required]
         virtual public ICollection<DogWalk> Dogs { get; set; }
+
+        public Walk()
+        {
+            Dogs = new HashSet<DogWalk>();
+        }
     }
 }

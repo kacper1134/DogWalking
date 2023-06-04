@@ -77,12 +77,34 @@ namespace DogWalkingAPI.Controllers
         // POST: api/Walks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("CreateWalk")]
-        public async Task<ActionResult<Walk>> CreateWalk(Walk walk)
+        public async Task<ActionResult<Walk>> CreateWalk(string ownerUsername, DateTime day, string hourRange, int[] dogIds, int walkerId)
         {
             if (_context.Walks == null)
             {
                 return Problem("Entity set 'DataBaseContext.Walks'  is null.");
             }
+
+            Walk walk = new Walk();
+            walk.WalkerId = walkerId;
+            var walker = FindUserById(walkerId);
+            var owner = FindUserByName(ownerUsername);
+            if (walker == null || owner == null)
+            {
+                return NotFound();
+            }
+            walk.OwnerId = owner.UserId;
+            DateTime startTime = day;
+            DateTime endTime = day;
+            startTime = startTime.AddHours(double.Parse(hourRange.Split('-')[0].Split(':')[0]));
+            startTime = startTime.AddMinutes(double.Parse(hourRange.Split('-')[0].Split(':')[1]));
+            endTime = endTime.AddHours(double.Parse(hourRange.Split('-')[1].Split(':')[0]));
+            endTime = endTime.AddMinutes(double.Parse(hourRange.Split('-')[1].Split(':')[1]));
+            walk.StartTime = startTime;
+            walk.EndTime = endTime;
+
+            // dodawanie do dogwalks trzeba zrobić
+            
+
             _context.Walks.Add(walk);
             try
             {
@@ -285,6 +307,16 @@ namespace DogWalkingAPI.Controllers
         private bool WalkExists(int walkId)
         {
             return (_context.Walks?.Any(e => e.WalkId == walkId)).GetValueOrDefault();
+        }
+
+        private User? FindUserById(int id)
+        {
+            return _context.Users?.FirstOrDefault(u => u.UserId == id);
+        }
+
+        private User? FindUserByName(string name) 
+        { 
+            return _context.Users?.FirstOrDefault(u => u.UserName == name);
         }
     }
 }
