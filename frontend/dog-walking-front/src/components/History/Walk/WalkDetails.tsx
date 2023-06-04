@@ -16,9 +16,10 @@ import {
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Rating } from "react-simple-star-rating";
+import { DogData } from "../../../store/dogsApiSlice";
 import TextEditor from "../../common/TextEditor";
 import PageSelector from "../../Planning/BookingPage/PageSelector";
-import { calculateAge, DogType } from "../../Profile/DogSection/DogCard";
+import { calculateAge } from "../../Profile/DogSection/DogCard";
 import {
   dogFontSize,
   dogImageRadius,
@@ -149,7 +150,7 @@ const WalkDetails = () => {
 };
 
 interface DogCardProps {
-  dog: DogType;
+  dog: DogData;
 }
 
 const DogCard = ({ dog }: DogCardProps) => {

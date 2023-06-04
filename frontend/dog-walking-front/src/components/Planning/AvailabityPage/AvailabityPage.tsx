@@ -1,34 +1,79 @@
 import { Box, Button, HStack, Spacer, useToast } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { RootState } from "../../../store";
+import {
+  AvailabilitiesData,
+  useCreateAvailabilitiesMutation,
+  useDeleteAvailabilitiesByWalkerIdMutation,
+  useGetAvailabilitiesQuery,
+} from "../../../store/availabilitiesSlice";
+import { useGetUserQuery } from "../../../store/userApiSlice";
 import { fontSize } from "../PlanningDimensions";
 import LocalizationMap from "./LocalizationMap";
 import WalkerScheduler from "./WalkerScheduler";
 
 const AvailabityPage = () => {
+  const username = useSelector((state: RootState) => state.auth.username);
+  const { data: details } = useGetUserQuery(username);
+  const userId = details?.userId;
+  const { data: oldAvailabilities } = useGetAvailabilitiesQuery(userId ?? -1);
+  const [createAvailabilitiesTrigger] = useCreateAvailabilitiesMutation();
+  const [deleteAvailabilitiesTrigger] =
+    useDeleteAvailabilitiesByWalkerIdMutation();
+
   const [currentStep, setCurrentStep] = useState(1);
-  const [availabities, setAvailabites] = useState<any[]>([]);
+  const [availabities, setAvailabites] = useState<AvailabilitiesData[]>([]);
   const [currentRadius, setCurrentRadius] = useState(100);
   const [currentCoordinates, setCurrentCoordinates] = useState({
     lat: 51.065487,
     lng: 17.063,
   });
+  
   const backgroundImageUrl =
     currentStep === 1
       ? "https://images.unsplash.com/photo-1608370617993-a5c9ee904646?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
       : "https://images.unsplash.com/photo-1478860409698-8707f313ee8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
   const toast = useToast();
 
+  useEffect(() => {
+    if (oldAvailabilities !== undefined) {
+      setAvailabites(oldAvailabilities!);
+      if (oldAvailabilities && oldAvailabilities.length > 0) {
+        setCurrentCoordinates({
+          lat: oldAvailabilities[0].latitude,
+          lng: oldAvailabilities[0].longitude,
+        });
+        setCurrentRadius(oldAvailabilities[0].radius);
+      }
+    }
+  }, [oldAvailabilities]);
+
   const navigate = useNavigate();
 
   const submitChanges = () => {
-    navigate("..");
-    toast({
-      title: "Saved changes.",
-      description: "We've saved your changes for you.",
-      status: "success",
-      duration: 9000,
-      isClosable: true,
+    const newAvailabilities: AvailabilitiesData[] = availabities.map((a) => {
+      return {
+        walkerId: userId!,
+        startTime: a.startTime,
+        endTime: a.endTime,
+        latitude: currentCoordinates.lat,
+        longitude: currentCoordinates.lng,
+        radius: currentRadius,
+      };
+    });
+    deleteAvailabilitiesTrigger(userId!).then(() => {
+      createAvailabilitiesTrigger(newAvailabilities).then(() => {
+        navigate("..");
+        toast({
+          title: "Saved changes.",
+          description: "We've saved your changes for you.",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      });
     });
   };
 

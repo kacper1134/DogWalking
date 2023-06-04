@@ -18,30 +18,35 @@ import {
   ModalOverlay,
   SimpleGrid,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
+import { deleteObject, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { FaBirthdayCake } from "react-icons/fa";
 import { GiSittingDog } from "react-icons/gi";
+import storage from "../../../config/firebase-config";
+import { DogData } from "../../../store/dogsApiSlice";
 import EditImageInput from "../../common/EditImageInput";
 import TextEditor from "../../common/TextEditor";
+import { createGUID } from "../UserSection/UserDetailsEditModal";
 import {
   detailsModalButtonFontSize,
   detailsModalFontSize,
   detailsModalSize,
 } from "../UserSection/UserDetailsModalDimensions";
-import { DogType } from "./DogCard";
 
 interface DogCreateEditModalProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isEdit: boolean;
-  changeDogsHandler: (dogInfo: DogType) => void | null;
+  changeDogsHandler: (dogInfo: DogData) => void | null;
   id: number;
   name: string;
   birthday: string;
   content: string;
   imageUrl: string | null;
+  walks: [];
 }
 
 const DogCreateEditModal = ({
@@ -54,14 +59,19 @@ const DogCreateEditModal = ({
   birthday,
   content,
   imageUrl,
+  walks,
 }: DogCreateEditModalProps) => {
   const [changedName, setChangedName] = useState(name);
-  const [changedBirthday, setChangedBirthday] = useState(birthday);
+  const [changedBirthday, setChangedBirthday] = useState(
+    birthday.split("T")[0]
+  );
   const [changedContent, setChangedContent] = useState(content);
   const [changedImageUrl, setChangedImageUrl] = useState(imageUrl ?? "");
 
   const [nameErrorMessage, setNameErrorMessage] = useState("");
   const [birthdayErrorMessage, setBirthdayErrorMessage] = useState("");
+
+  const toast = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -71,7 +81,7 @@ const DogCreateEditModal = ({
 
   const clearChanges = () => {
     setChangedName(name);
-    setChangedBirthday(birthday);
+    setChangedBirthday(birthday.split("T")[0]);
     setChangedContent(content);
     setChangedImageUrl(imageUrl ?? "");
     setNameErrorMessage("");
@@ -96,17 +106,67 @@ const DogCreateEditModal = ({
     }
 
     if (!isInvalid) {
-      changeDogsHandler({
-        id: id,
-        name: changedName,
-        imageUrl: changedImageUrl,
-        description: changedContent,
-        birthday: changedBirthday,
+      saveImage().then((path) => {
+        changeDogsHandler({
+          dogId: id,
+          name: changedName,
+          imageUrl: path ?? "image",
+          description: changedContent,
+          birthday: changedBirthday,
+          walks: walks,
+        });
+        setIsOpen(false);
       });
-      setIsOpen(false);
     }
   };
   const [picture, setPicture] = useState<File | null>();
+
+  const saveImage = async () => {
+    let currentImagePath: string | undefined =
+      (imageUrl === null || imageUrl === "image") ? "" : imageUrl!;
+    let imagePath: string | undefined = "";
+
+    if (picture && picture !== undefined) {
+      imagePath = await createImage();
+
+      if (imagePath === undefined || imagePath === "") {
+        return;
+      }
+      
+      if (currentImagePath !== "") {
+        await deleteImage(currentImagePath!);
+      }
+    } else {
+      imagePath = currentImagePath;
+    }
+    return imagePath;
+  };
+
+  const createImage = async () => {
+    const dogImagePath =
+      "dogImages/" + createGUID() + "." + picture?.name.split(".").pop();
+    const dogImageRef = ref(storage, dogImagePath);
+    const result = await uploadBytes(dogImageRef, picture!).catch(() => {
+      toast({
+        title: "Dog Update",
+        description: "Your dog image size is too big, maximum is 5MB!",
+        status: "error",
+        isClosable: true,
+      });
+      setIsOpen(false);
+      return undefined;
+    });
+    if (result === undefined) return undefined;
+    return dogImagePath;
+  };
+
+  const deleteImage = async (currentDogImagePath: string) => {
+    const dogImageRef = ref(storage, currentDogImagePath);
+    deleteObject(dogImageRef)
+      .then(() => setChangedImageUrl(""))
+      .catch(() => {});
+  };
+
   return (
     <Modal
       isOpen={isOpen}
