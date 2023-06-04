@@ -25,6 +25,7 @@ export interface RegisterUserFields {
 }
 
 export interface UserData {
+  userId: number,
   userName: string;
   lastName: string;
   firstName: string;
