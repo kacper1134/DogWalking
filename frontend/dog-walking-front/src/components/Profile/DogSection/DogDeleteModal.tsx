@@ -9,12 +9,12 @@ import {
   ModalOverlay,
   Text,
 } from "@chakra-ui/react";
-import { DogType } from "./DogCard";
+import { DogData } from "../../../store/dogsApiSlice";
 
 interface DogDeleteModalProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  dogInfo: DogType;
+  dogInfo: DogData;
   deleteDogInfo: (id: number) => void;
 }
 
@@ -25,7 +25,7 @@ const DogDeleteModal = ({
   deleteDogInfo,
 }: DogDeleteModalProps) => {
   const onSubmit = () => {
-    deleteDogInfo(dogInfo.id);
+    deleteDogInfo(dogInfo.dogId);
     setIsOpen(false);
   };
   return (

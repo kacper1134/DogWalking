@@ -5,8 +5,19 @@ import {
   useBreakpointValue,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { deleteObject, ref } from "firebase/storage";
+import { useEffect, useState } from "react";
 import { AiFillPlusCircle } from "react-icons/ai";
+import { useSelector } from "react-redux";
+import storage from "../../../config/firebase-config";
+import { RootState } from "../../../store";
+import { DogData } from "../../../store/dogsApiSlice";
+import {
+  useCreateDogMutation,
+  useDeleteDogMutation,
+  useGetUserQuery,
+  useUpdateDogMutation,
+} from "../../../store/userApiSlice";
 import Card from "../../Card";
 import {
   borderRadius,
@@ -15,9 +26,8 @@ import {
   mainMargin,
   mainPadding,
 } from "../UserSection/ProfileDetailsDimensions";
-import DogCard, { DogType } from "./DogCard";
+import DogCard from "./DogCard";
 import DogCreateEditModal from "./DogCreateEditModal";
-import { exampleDogs } from "./DogExampleInfo";
 
 const Dogs = () => {
   const columns = useBreakpointValue({
@@ -29,27 +39,41 @@ const Dogs = () => {
   const [isCreateEditDogModalOpen, setIsCreateEditDogModalOpen] =
     useState(false);
 
-  const [dogs, setDogs] = useState([...exampleDogs]);
+  const username = useSelector((state: RootState) => state.auth.username);
+  const { data: details } = useGetUserQuery(username);
+  const [deleteDogTrigger] = useDeleteDogMutation();
+  const [createDogTrigger] = useCreateDogMutation();
+  const [updateDogTrigger] = useUpdateDogMutation();
 
-  const addNewDogDetails = (dogInfo: DogType) => {
-    setDogs((dogs) => {
-      dogs.push(dogInfo);
-      return dogs;
-    });
+  const [dogs, setDogs] = useState<DogData[]>([]);
+
+  useEffect(() => {
+    if (details != null) {
+      setDogs([...details.dogs]);
+    }
+  }, [details]);
+
+  const addNewDogDetails = (dogInfo: DogData) => {
+    if (dogInfo.imageUrl === "") dogInfo.imageUrl = "image";
+    if (dogInfo.description === "") dogInfo.description = "<p></p>";
+
+    createDogTrigger({ username, data: dogInfo });
   };
 
-  const changeDogInfo = (dogInfo: DogType) => {
-    setDogs((dogs) => {
-      var index = dogs.findIndex((dog) => dog.id === dogInfo.id);
-      dogs[index] = dogInfo;
-      return [...dogs];
-    });
+  const changeDogInfo = (dogInfo: DogData) => {
+    if (dogInfo.imageUrl === "") dogInfo.imageUrl = "image";
+    if (dogInfo.description === "") dogInfo.description = "<p></p>";
+    updateDogTrigger(dogInfo);
   };
 
   const deleteDogInfoHandler = (id: number) => {
-    setDogs((dogs) => {
-      return dogs.filter((dog) => dog.id !== id);
-    });
+    const image = dogs.filter(dog => dog.dogId === id)[0].imageUrl;
+    deleteDogTrigger(id).then(() => deleteImage(image));
+  };
+
+  const deleteImage = async (currentDogImagePath: string) => {
+    const dogImageRef = ref(storage, currentDogImagePath);
+    deleteObject(dogImageRef);
   };
 
   return (
@@ -108,6 +132,7 @@ const Dogs = () => {
           birthday=""
           content=""
           imageUrl={null}
+          walks={[]}
         />
       </Card>
     </>

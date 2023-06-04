@@ -9,7 +9,8 @@ import {
   VStack,
   Checkbox,
 } from "@chakra-ui/react";
-import { calculateAge, DogType } from "../../Profile/DogSection/DogCard";
+import { DogData } from "../../../store/dogsApiSlice";
+import { calculateAge } from "../../Profile/DogSection/DogCard";
 import {
   dogFontSize,
   dogImageRadius,
@@ -18,7 +19,7 @@ import { dogImageSize } from "../PlanningDimensions";
 
 interface DogSelectionCardProps {
   index: number;
-  dog: DogType;
+  dog: DogData;
   checkedDogs: boolean[];
   setCheckedDogs: React.Dispatch<React.SetStateAction<boolean[]>>;
 }

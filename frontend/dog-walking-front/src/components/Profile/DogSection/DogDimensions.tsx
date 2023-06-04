@@ -1,9 +1,9 @@
 export const dogImageSize = {
   base: "70px",
   sm: "90px",
-  md: "110px",
+  md: "90px",
   lg: "130px",
-  xl: "200px",
+  xl: "180px",
 };
 
 export const dogCardWidth = {
@@ -19,9 +19,9 @@ export const dogImageRadius = "15px";
 export const dogCardDescriptionWidth = {
   base: "220px",
   sm: "300px",
-  md: "270px",
+  md: "180px",
   lg: "220px",
-  xl: "300px",
+  xl: "220px",
 };
 
 export const dogFontSize = {
