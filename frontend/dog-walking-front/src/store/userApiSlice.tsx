@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { DogData } from "./dogsApiSlice";
 
 interface LoginCredentials {
   username: string;
@@ -24,6 +25,7 @@ export interface RegisterUserFields {
 }
 
 export interface UserData {
+  userId: number,
   userName: string;
   lastName: string;
   firstName: string;
@@ -35,7 +37,7 @@ export interface UserData {
   description: string;
   gender: 0 | 1;
   ratePerHour: number;
-  dogs: [];
+  dogs: DogData[];
   ownerWalks: [];
   walkerWalks: [];
   availabilities: [];
@@ -77,12 +79,37 @@ const userApiSlice = createApi({
       }),
       invalidatesTags: ["UserDetails"],
     }),
+    deleteDog: builder.mutation<void, number>({
+      query: (dogId) => ({
+        url: `/api/Dogs/${dogId}`,
+        method: "Delete",
+      }),
+      invalidatesTags: ["UserDetails"],
+    }),
+    createDog: builder.mutation<DogData, { username: string; data: DogData }>({
+      query: (dogData) => ({
+        url: `/api/Dogs?username=${dogData.username}&dogName=${dogData.data.name}&birthday=${dogData.data.birthday}&description=${dogData.data.description}&imageUrl=${dogData.data.imageUrl}`,
+        method: "Post",
+      }),
+      invalidatesTags: ["UserDetails"],
+    }),
+    updateDog: builder.mutation<void, DogData>({
+      query: (dogData) => ({
+        url: `/api/Dogs/${dogData.dogId}`,
+        body: dogData,
+        method: "Put",
+      }),
+      invalidatesTags: ["UserDetails"],
+    }),
   }),
 });
 
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useCreateDogMutation,
+  useDeleteDogMutation,
+  useUpdateDogMutation,
   useGetUserQuery,
   useUpdateUserDetailsMutation,
 } = userApiSlice;

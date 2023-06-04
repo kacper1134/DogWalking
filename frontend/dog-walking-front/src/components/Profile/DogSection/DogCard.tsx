@@ -21,21 +21,15 @@ import {
 import parse from "html-react-parser";
 import Card from "../../Card";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DogCreateEditModal from "./DogCreateEditModal";
 import DogDeleteModal from "./DogDeleteModal";
-
-export interface DogType {
-  id: number;
-  imageUrl: string | null;
-  name: string;
-  birthday: string;
-  description: string;
-}
+import { DogData } from "../../../store/dogsApiSlice";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
 
 export interface DogCardProps {
-  dog: DogType;
-  changeDogInfo: (dogInfo: DogType) => void;
+  dog: DogData;
+  changeDogInfo: (dogInfo: DogData) => void;
   deleteDogInfo: (id: number) => void;
 }
 
@@ -49,6 +43,17 @@ const DogCard = ({ dog, changeDogInfo, deleteDogInfo }: DogCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
+  const getImage = useGetFirebaseImage();
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    if (dog.imageUrl !== "" && dog.imageUrl !== "image") {
+      getImage(dog.imageUrl)
+        .then((url) => setImage(url))
+        .catch(() => setImage(""));
+    }
+  }, [getImage, dog.imageUrl]);
+
   return (
     <Card
       height={useBreakpointValue(dogImageSize)}
@@ -61,11 +66,11 @@ const DogCard = ({ dog, changeDogInfo, deleteDogInfo }: DogCardProps) => {
       <HStack h="100%">
         <Image
           src={
-            dog.imageUrl ??
+            image ??
             "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
           }
-          w={dogImageSize}
-          h={dogImageSize}
+          maxW={dogImageSize}
+          maxH={dogImageSize}
           objectFit="cover"
           objectPosition="top"
           borderRadius={dogImageRadius}
@@ -124,11 +129,12 @@ const DogCard = ({ dog, changeDogInfo, deleteDogInfo }: DogCardProps) => {
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         changeDogsHandler={changeDogInfo}
-        id={dog.id}
+        id={dog.dogId}
         name={dog.name}
         birthday={dog.birthday}
         content={dog.description}
         imageUrl={dog.imageUrl}
+        walks={dog.walks}
       />
       <DogDeleteModal
         dogInfo={dog}
