@@ -232,6 +232,22 @@ namespace DogWalkingAPI.Controllers
             return NoContent();
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAvailabilitiesByWalkerId(int walkerId)
+        {
+            var availabilities = await _context.Availabilities.Where(a => a.WalkerId == walkerId).ToListAsync();
+
+            if (availabilities == null || availabilities.Count == 0)
+            {
+                return NotFound();
+            }
+
+            _context.Availabilities.RemoveRange(availabilities);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private bool AvailabilityExists(int id, DateTime startTime)
         {
             return (_context.Availabilities?.Any(e => e.WalkerId == id && e.StartTime == startTime)).GetValueOrDefault();
