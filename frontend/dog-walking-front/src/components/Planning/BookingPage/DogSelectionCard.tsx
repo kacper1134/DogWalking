@@ -9,6 +9,8 @@ import {
   VStack,
   Checkbox,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
 import { DogData } from "../../../store/dogsApiSlice";
 import { calculateAge } from "../../Profile/DogSection/DogCard";
 import {
@@ -30,12 +32,23 @@ const DogSelectionCard = ({
   setCheckedDogs,
   checkedDogs,
 }: DogSelectionCardProps) => {
+  const getImage = useGetFirebaseImage();
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    if (dog.imageUrl !== "" && dog.imageUrl !== "image") {
+      getImage(dog.imageUrl)
+        .then((url) => setImage(url))
+        .catch(() => setImage(""));
+    }
+  }, [getImage, dog.imageUrl]);
+  
   return (
     <Card bg="white" py="20px" px="20px" mx="20px" borderRadius="20px">
       <HStack h="100%">
         <Image
           src={
-            dog.imageUrl ??
+            image ??
             "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
           }
           w={dogImageSize}
