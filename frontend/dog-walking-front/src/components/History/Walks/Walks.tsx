@@ -59,8 +59,10 @@ const Walks = () => {
     ) {
       const ownerWalks = ownerWalksDetails.map((walk) => {return {...walk, status:"Planned"}});
       const walkerWalks = walkerWalksDetails.map((walk) => {return {...walk, status:"Planned"}});
-      ownerWalks.forEach((walk) => setWalkStatus({...walk, status:"Planned"}));
-      walkerWalks.forEach((walk) => setWalkStatus({...walk, status:"Planned"}));
+      //@ts-ignore
+      ownerWalks.forEach((walk) => setWalkStatus(walk));
+      //@ts-ignore
+      walkerWalks.forEach((walk) => setWalkStatus(walk));
       //@ts-ignore
       setOwnerWalks(ownerWalks);
       //@ts-ignore

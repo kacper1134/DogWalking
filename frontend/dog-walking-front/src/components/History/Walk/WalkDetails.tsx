@@ -180,7 +180,7 @@ const WalkDetails = () => {
         />
       )}
       {walkInfo !== undefined && walkInfo?.status === "In progress" && (
-        <WalkMap />
+        <WalkMap walk={walkInfo} />
       )}
     </Flex>
   );
