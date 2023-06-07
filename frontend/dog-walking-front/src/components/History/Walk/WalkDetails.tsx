@@ -13,10 +13,16 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Rating } from "react-simple-star-rating";
 import { DogData } from "../../../store/dogsApiSlice";
+import {
+  useDeleteWalkMutation,
+  useGetWalkQuery,
+  useStartWalkMutation,
+  WalkDetailsType,
+} from "../../../store/walkApiSlice";
 import TextEditor from "../../common/TextEditor";
 import PageSelector from "../../Planning/BookingPage/PageSelector";
 import { calculateAge } from "../../Profile/DogSection/DogCard";
@@ -24,7 +30,6 @@ import {
   dogFontSize,
   dogImageRadius,
 } from "../../Profile/DogSection/DogDimensions";
-import { exampleDogs } from "../../Profile/DogSection/DogExampleInfo";
 import {
   walkDetailsCardHeight,
   walkDetailsCardWidth,
@@ -32,20 +37,19 @@ import {
   walksDetailsImageSize,
   walksDetailsRatingSize,
 } from "../HistoryDimensions";
-import { OWNER_WALKS, WALKER_WALKS } from "../Walks/WalksExampleInfo";
+import { setWalkStatus } from "../Walks/Walks";
 import WalkMap from "./WalkMap";
-
-const getWalkInfo = (walkId: number) => {
-  return OWNER_WALKS.concat(WALKER_WALKS).find((walk) => walk.id === walkId);
-};
 
 const WalkDetails = () => {
   const { walkId } = useParams();
   const backgroundImageUrl =
     "https://images.unsplash.com/photo-1541952188281-d960f03c5ebd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
+  const { data: walkDetails } = useGetWalkQuery(walkId!);
+  const [deleteWalkTrigger] = useDeleteWalkMutation();
+  const [startWalkTrigger] = useStartWalkMutation();
 
-  const walkInfo = getWalkInfo(+walkId!);
-  const dogs = exampleDogs;
+  const [walkInfo, setWalkInfo] = useState<WalkDetailsType>();
+  const [dogs, setDogs] = useState<DogData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [review, setReview] = useState("");
 
@@ -64,14 +68,37 @@ const WalkDetails = () => {
   };
 
   const cancelWalk = () => {
-    showToast("Cancel walk", "Walk was canceled sucessfully!");
-    navigate("../");
+    deleteWalkTrigger("" + walkDetails?.walkId!).then(() => {
+      showToast("Cancel walk", "Walk was canceled sucessfully!");
+      navigate("../");
+    });
+  };
+
+  const startWalk = () => {
+    startWalkTrigger({
+      walkId: "" + walkDetails?.walkId!,
+      lat: 51.1079,
+      lng: 17.0385,
+    }).then(() => {
+      showToast("Start walk", "Walk was started sucessfully!");
+      navigate("../");
+    });
   };
 
   const saveReview = () => {
     showToast("Review", "Review was saved sucessfully!");
     navigate("../");
   };
+
+  useEffect(() => {
+    if (walkDetails !== undefined) {
+      const details: WalkDetailsType = { ...walkDetails, status: "Planned" };
+      //@ts-ignore
+      setWalkStatus(details);
+      setWalkInfo(details);
+      setDogs(details.dogs);
+    }
+  }, [walkDetails]);
 
   return (
     <Flex
@@ -89,62 +116,72 @@ const WalkDetails = () => {
       as={Center}
       direction={{ base: "column", md: "row" }}
     >
-      <Card
-        w={walkDetailsCardWidth}
-        h={walkDetailsCardHeight}
-        bg="white"
-        boxShadow="dark-lg"
-        rounded="xl"
-        as={Center}
-        alignItems="flex-start"
-        m="20px"
-      >
-        <VStack color="black" alignItems="flex-start" p="20px" spacing={5}>
-          <>
-            <Text color="primary.600" fontSize={walksDetailsFontSize}>
-              <strong>Owner</strong>: {walkInfo?.owner.name}{" "}
-              {walkInfo?.owner.surname}
-            </Text>
-            <Text color="primary.600" fontSize={walksDetailsFontSize}>
-              <strong>Walker</strong>: {walkInfo?.walker.name}{" "}
-              {walkInfo?.walker.surname}
-            </Text>
-            <Text color="primary.600" fontSize={walksDetailsFontSize}>
-              <strong>Start</strong>: {walkInfo?.startTime}
-            </Text>
-            <Text color="primary.600" fontSize={walksDetailsFontSize}>
-              <strong>Status</strong>: {walkInfo?.status}
-            </Text>
-            <Text
-              color="primary.600"
-              fontWeight="bold"
-              fontSize={walksDetailsFontSize}
-            >
-              Dogs:
-            </Text>
-          </>
-          <DogCard dog={dogs[currentPage]} />
-          <Box>
-            <PageSelector
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalNumberOfPages={dogs.length}
-            />
-          </Box>
-          {walkInfo?.status === "Awaiting payment" && <PaymentButton walkId={walkInfo.id} />}
-          {walkInfo?.status === "Planned" && (
-            <CancelWalkButton cancelWalk={cancelWalk} />
-          )}
-        </VStack>
-      </Card>
-      {walkInfo?.status === "Completed" && (
+      {walkInfo !== undefined && (
+        <Card
+          w={walkDetailsCardWidth}
+          h={walkDetailsCardHeight}
+          bg="white"
+          boxShadow="dark-lg"
+          rounded="xl"
+          as={Center}
+          alignItems="flex-start"
+          m="20px"
+        >
+          <VStack color="black" alignItems="flex-start" p="20px" spacing={5}>
+            <>
+              <Text color="primary.600" fontSize={walksDetailsFontSize}>
+                <strong>Owner</strong>: {walkInfo?.owner.firstName}{" "}
+                {walkInfo?.owner.lastName}
+              </Text>
+              <Text color="primary.600" fontSize={walksDetailsFontSize}>
+                <strong>Walker</strong>: {walkInfo?.walker.firstName}{" "}
+                {walkInfo?.walker.lastName}
+              </Text>
+              <Text color="primary.600" fontSize={walksDetailsFontSize}>
+                <strong>Start</strong>:{" "}
+                {walkInfo?.startTime.split("T").join(" ")}
+              </Text>
+              <Text color="primary.600" fontSize={walksDetailsFontSize}>
+                <strong>Status</strong>: {walkInfo?.status}
+              </Text>
+              <Text
+                color="primary.600"
+                fontWeight="bold"
+                fontSize={walksDetailsFontSize}
+              >
+                Dogs:
+              </Text>
+            </>
+            {dogs.length > 0 && <DogCard dog={dogs[currentPage]} />}
+            <Box>
+              <PageSelector
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalNumberOfPages={dogs.length}
+              />
+            </Box>
+            {walkInfo?.status === "Awaiting payment" && (
+              <PaymentButton walkId={walkInfo.walkId} />
+            )}
+            {walkInfo?.status === "Planned" && (
+              <HStack>
+                <CancelWalkButton cancelWalk={cancelWalk} />
+                <StartWalkButton startWalk={startWalk} />
+              </HStack>
+            )}
+          </VStack>
+        </Card>
+      )}
+      {walkInfo !== undefined && walkInfo?.status === "Completed" && (
         <ReviewCard
           review={review}
           setReview={setReview}
           saveReview={saveReview}
         />
       )}
-      {walkInfo?.status === "In progress" && <WalkMap />}
+      {walkInfo !== undefined && walkInfo?.status === "In progress" && (
+        <WalkMap />
+      )}
     </Flex>
   );
 };
@@ -242,13 +279,18 @@ const ReviewCard = ({ review, setReview, saveReview }: ReviewCardProps) => {
 };
 
 interface PaymentButtonProps {
-    walkId: number;
+  walkId: number;
 }
 
-const PaymentButton = ({walkId}: PaymentButtonProps) => {
+const PaymentButton = ({ walkId }: PaymentButtonProps) => {
   const navigate = useNavigate();
   return (
-    <Button colorScheme="primary" color="white" fontSize={walksDetailsFontSize} onClick={() => navigate(`../payment/${walkId}`)}>
+    <Button
+      colorScheme="primary"
+      color="white"
+      fontSize={walksDetailsFontSize}
+      onClick={() => navigate(`../payment/${walkId}`)}
+    >
       Pay Now
     </Button>
   );
@@ -267,6 +309,23 @@ const CancelWalkButton = ({ cancelWalk }: CancelWalkButtonProps) => {
       onClick={cancelWalk}
     >
       Cancel
+    </Button>
+  );
+};
+
+interface StartWalkButtonProps {
+  startWalk: () => void;
+}
+
+const StartWalkButton = ({ startWalk }: StartWalkButtonProps) => {
+  return (
+    <Button
+      colorScheme="green"
+      color="white"
+      fontSize={walksDetailsFontSize}
+      onClick={startWalk}
+    >
+      Start Walk
     </Button>
   );
 };

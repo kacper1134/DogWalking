@@ -27,17 +27,47 @@ import {
   iconSize,
   imageSize,
 } from "../HistoryDimensions";
-import { OWNER_WALKS, WALKER_WALKS } from "./WalksExampleInfo";
 import { BiSortDown, BiSortUp } from "react-icons/bi";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
+import {
+  useGetOwnerWalksQuery,
+  useGetWalkerWalksQuery,
+  WalkDetailsType,
+} from "../../../store/walkApiSlice";
+
+export const setWalkStatus = (walk: WalkDetailsType) => {
+  walk.status = "Planned";
+};
 
 const Walks = () => {
   const backgroundImageUrl =
     "https://images.unsplash.com/photo-1553174770-a37b22033c1c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
 
-  const ownerWalks = OWNER_WALKS;
-  const walkerWalks = WALKER_WALKS;
+  const username = useSelector((state: RootState) => state.auth.username);
+  const { data: ownerWalksDetails } = useGetOwnerWalksQuery(username);
+  const { data: walkerWalksDetails } = useGetWalkerWalksQuery(username);
+  const [ownerWalks, setOwnerWalks] = useState<WalkDetailsType[]>([]);
+  const [walkerWalks, setWalkerWalks] = useState<WalkDetailsType[]>([]);
 
+  useEffect(() => {
+    if (
+      username !== undefined &&
+      ownerWalksDetails !== undefined &&
+      walkerWalksDetails !== undefined
+    ) {
+      const ownerWalks = ownerWalksDetails.map((walk) => {return {...walk, status:"Planned"}});
+      const walkerWalks = walkerWalksDetails.map((walk) => {return {...walk, status:"Planned"}});
+      ownerWalks.forEach((walk) => setWalkStatus({...walk, status:"Planned"}));
+      walkerWalks.forEach((walk) => setWalkStatus({...walk, status:"Planned"}));
+      //@ts-ignore
+      setOwnerWalks(ownerWalks);
+      //@ts-ignore
+      setWalkerWalks(walkerWalks);
+    }
+  }, [ownerWalksDetails, username, walkerWalksDetails]);
+  
   return (
     <VStack
       flexGrow="10000"
@@ -92,10 +122,13 @@ const walkSelectionTypes = [
 
 interface WalksHistoryProps {
   owner: boolean;
-  walks: WalkType[];
+  walks: WalkDetailsType[];
 }
 
-const orderWalks = (ascendingOrder: boolean, walks: WalkType[]): WalkType[] => {
+const orderWalks = (
+  ascendingOrder: boolean,
+  walks: WalkDetailsType[]
+): WalkDetailsType[] => {
   if (ascendingOrder) {
     return walks.sort((a, b) => (a.startTime > b.startTime ? 1 : -1));
   }
@@ -176,17 +209,9 @@ const WalksHistory = ({ owner, walks }: WalksHistoryProps) => {
   );
 };
 
-export interface WalkType {
-  id: number;
-  owner: { name: string; surname: string };
-  walker: { name: string; surname: string };
-  startTime: string;
-  status: "Planned" | "In progress" | "Awaiting payment" | "Completed";
-}
-
 interface WalkProps {
   owner: boolean;
-  walk: WalkType;
+  walk: WalkDetailsType;
 }
 
 const Walk = ({ owner, walk }: WalkProps) => {
@@ -200,7 +225,7 @@ const Walk = ({ owner, walk }: WalkProps) => {
     Completed:
       "https://images.unsplash.com/photo-1613530498905-1b17a6f40547?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1375&q=80",
   };
-
+  
   const navigate = useNavigate();
 
   return (
@@ -212,13 +237,13 @@ const Walk = ({ owner, walk }: WalkProps) => {
       bgColor="primary.300"
       boxShadow="dark-lg"
       cursor="pointer"
-      onClick={() => navigate(`./${walk.id}`)}
+      onClick={() => navigate(`./${walk.walkId}`)}
     >
       <HStack h="100%">
         <Image
           src={
-            statusImages[walk.status]
-              ? statusImages[walk.status]
+            statusImages[walk.status!]
+              ? statusImages[walk.status!]
               : "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
           }
           w={imageSize}
@@ -241,10 +266,10 @@ const Walk = ({ owner, walk }: WalkProps) => {
         >
           <Text>
             {owner
-              ? "Owner: " + walk.owner.name + " " + walk.owner.surname
-              : "Walker: " + walk.walker.name + " " + walk.walker.surname}
+              ? "Owner: " + walk.owner.firstName + " " + walk.owner.lastName
+              : "Walker: " + walk.walker.firstName + " " + walk.walker.lastName}
           </Text>
-          <Text>Start: {walk.startTime}</Text>
+          <Text>Start: {walk.startTime.split("T").join(" ")}</Text>
           <Text>Status: {walk.status}</Text>
         </VStack>
       </HStack>

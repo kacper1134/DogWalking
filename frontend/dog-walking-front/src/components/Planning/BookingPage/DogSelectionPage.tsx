@@ -11,8 +11,13 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { RootState } from "../../../store";
+import { DogData } from "../../../store/dogsApiSlice";
+import { useGetUserQuery } from "../../../store/userApiSlice";
+import { useCreateWalkMutation } from "../../../store/walkApiSlice";
 import { dogFontSize } from "../../Profile/DogSection/DogDimensions";
 import { exampleDogs } from "../../Profile/DogSection/DogExampleInfo";
 import { fontSize } from "../PlanningDimensions";
@@ -30,17 +35,27 @@ const DogSelectionPage = ({
   setWalkerIndex,
   walker,
 }: DogSelectionPageProps) => {
-  const dogs = [...exampleDogs];
+  const username = useSelector((state: RootState) => state.auth.username);
+  const { data: details } = useGetUserQuery(username);
+  const [dogs, setDogs] = useState<DogData[]>([]);
+
+  useEffect(() => {
+    if (details != null) {
+      setDogs([...details.dogs]);
+    }
+  }, [details]);
+
   const [checkedDogs, setCheckedDogs] = useState(dogs.map((_) => false));
 
-  const allChecked = checkedDogs.every(Boolean);
+  const allChecked = checkedDogs.length === 0 ? false : checkedDogs.every(Boolean);
+  
   const isIndeterminate = checkedDogs.some(Boolean) && !allChecked;
 
-  const availableDates = ["5/2/2023", "5/3/2023", "5/4/2023"];
+  const availableDates = ["2019-05-02", "2019-05-03", "2019-05-04"];
   const availableHours: { [key: string]: string[] } = {
-    "5/2/2023": ["12:30-13:30", "14:30-15:30"],
-    "5/3/2023": ["10:30-13:30"],
-    "5/4/2023": ["9:30-13:30"],
+    "2019-05-02": ["12:30-13:30", "14:30-15:30"],
+    "2019-05-03": ["10:30-13:30"],
+    "2019-05-04": ["9:30-13:30"],
   };
 
   const [selectedDay, setSelectedDay] = useState(availableDates[0]);
@@ -51,10 +66,9 @@ const DogSelectionPage = ({
   const toast = useToast();
   const navigate = useNavigate();
 
-  const onSubmitHandler = () => {
-    console.log(walker);
-    console.log(selectedDay);
-    console.log(selectedHour);
+  const [createWalkMutation] = useCreateWalkMutation();
+
+  const onSubmitHandler = () => {    
     const selectedDogs = dogs.filter((_, index) => checkedDogs[index]);
     if (selectedDogs.length === 0) {
       toast({
@@ -65,13 +79,21 @@ const DogSelectionPage = ({
         isClosable: true,
       });
     } else {
-      navigate("..");
-      toast({
-        title: "Saved reservation.",
-        description: "We've saved your reservation for you.",
-        status: "success",
-        duration: 9000,
-        isClosable: true,
+      createWalkMutation({
+        ownerUsername: username,
+        day: selectedDay +"T00:00:00",
+        hourRange: selectedHour,
+        dogIds: details?.dogs.map((d) => d.dogId)!,
+        walkerId: 9,
+      }).then(() => {
+        navigate("..");
+        toast({
+          title: "Saved reservation.",
+          description: "We've saved your reservation for you.",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
       });
     }
   };
