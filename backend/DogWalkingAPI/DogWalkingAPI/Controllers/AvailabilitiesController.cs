@@ -89,50 +89,59 @@ namespace DogWalkingAPI.Controllers
 
         // GET: api/Availabilities/GetWalkers
         [HttpGet("GetWalkers")]
-        public ActionResult<IEnumerable<Availability>> GetWalkers(double lat, double lng, double maximumRange, 
-            string startDate, string endDate)
+        public ActionResult<IEnumerable<User>> GetWalkers(double lat, double lng, double maximumRange, 
+            DateTime startDate, DateTime endDate)
         {
             if (_context.Availabilities == null)
             {
                 return NotFound();
             }
-            //var foundAvailabilities = from a in _context.Availabilities
-            //                          where IsInRange(a.Latitude, a.Latitude, a.Radius, lat, lng, maximumRange)
-            //                          select a;
-            //var users = foundAvailabilities
-            var foundAvailabilities = new LinkedList<Availability>();
-            var x = _context.Availabilities.Where(a => true);
-            return foundAvailabilities.ToList();
-            return Ok();
+            var availabilities = _context.Availabilities.ToList();
+            var foundUserIds = availabilities
+                .Where(a => IsInRange(lat, lng, maximumRange, a.Latitude, a.Longitude, a.Radius) && IsInTimeRange(startDate, endDate, a.StartTime, a.EndTime)).Select(a => a.WalkerId);
+            List<User> users = new List<User>();
+            foreach (var userId in foundUserIds) {
+                var User = _context.Users.FirstOrDefault(a => a.UserId == userId);
+                if (User != null) {
+                    users.Add(User);
+                }
+            }
+            return users;
         }
 
-        //bool IsInRange(double x1, double y1, double r1, double x2, double y2, double r2)
-        //{
-        //    //double d = Math.Sqrt((x1 - x2) * (x1 - x2)
-        //    //                + (y1 - y2) * (y1 - y2));
+        bool IsInRange(double x1, double y1, double r1, double x2, double y2, double r2)
+        {
+            double d = Math.Sqrt((x1 - x2) * (x1 - x2)
+                            + (y1 - y2) * (y1 - y2));
 
-        //    //if (d <= r1 - r2)
-        //    //{
-        //    //    return true;
-        //    //}
-        //    //else if (d <= r2 - r1)
-        //    //{
-        //    //    return true;
-        //    //}
-        //    //else if (d < r1 + r2)
-        //    //{
-        //    //    return true;
-        //    //}
-        //    //else if (d == r1 + r2)
-        //    //{
-        //    //    return true;
-        //    //}
-        //    //else
-        //    //{
-        //    //    return false;
-        //    //}
-        //    return true;
-        //}
+            if (d <= r1 - r2)
+            {
+                return true;
+            }
+            else if (d <= r2 - r1)
+            {
+                return true;
+            }
+            else if (d < r1 + r2)
+            {
+                return true;
+            }
+            else if (d == r1 + r2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // starttime1 musi być mniejszy niż 0 a endtime1 musi być większy niż 0
+        bool IsInTimeRange(DateTime startTime1, DateTime endTime1, DateTime startTime2, DateTime endTime2)
+        {
+            return startTime1.CompareTo(startTime2) <= 0 && endTime1.CompareTo(endTime2) >= 0;
+            //return true;
+        }
 
         // ---------------------------------------
 
