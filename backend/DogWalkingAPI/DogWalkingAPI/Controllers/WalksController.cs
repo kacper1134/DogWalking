@@ -77,7 +77,7 @@ namespace DogWalkingAPI.Controllers
         // POST: api/Walks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("CreateWalk")]
-        public async Task<ActionResult<Walk>> CreateWalk(string ownerUsername, DateTime day, string hourRange, int[] dogIds, int walkerId)
+        public async Task<ActionResult<Walk>> CreateWalk([FromBody] WalkInputDto walkInputDto)
         {
             if (_context.Walks == null)
             {
@@ -85,16 +85,17 @@ namespace DogWalkingAPI.Controllers
             }
 
             Walk walk = new Walk();
-            walk.WalkerId = walkerId;
-            var walker = FindUserById(walkerId);
-            var owner = FindUserByName(ownerUsername);
+            walk.WalkerId = walkInputDto.WalkerId;
+            var walker = FindUserById(walkInputDto.WalkerId);
+            var owner = FindUserByName(walkInputDto.OwnerUsername);
             if (walker == null || owner == null)
             {
                 return NotFound();
             }
             walk.OwnerId = owner.UserId;
-            DateTime startTime = day;
-            DateTime endTime = day;
+            DateTime startTime = walkInputDto.Day;
+            DateTime endTime = walkInputDto.Day;
+            string hourRange = walkInputDto.HourRange;
             startTime = startTime.AddHours(double.Parse(hourRange.Split('-')[0].Split(':')[0]));
             startTime = startTime.AddMinutes(double.Parse(hourRange.Split('-')[0].Split(':')[1]));
             endTime = endTime.AddHours(double.Parse(hourRange.Split('-')[1].Split(':')[0]));

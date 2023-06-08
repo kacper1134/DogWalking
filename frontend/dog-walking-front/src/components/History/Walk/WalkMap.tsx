@@ -2,13 +2,18 @@ import { Card, Center, Spinner, Text } from "@chakra-ui/react";
 import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
+import { WalkDetailsType } from "../../../store/walkApiSlice";
 import {
   mapCardWidth,
   walkDetailsCardHeight,
   walksDetailsFontSize,
 } from "../HistoryDimensions";
 
-const WalkMap = () => {
+interface WalkMapProps {
+  walk: WalkDetailsType;
+}
+
+const WalkMap = ({walk}: WalkMapProps) => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "",
   });
@@ -21,8 +26,8 @@ const WalkMap = () => {
   });
 
   const [currentCoordinates, setCurrentCoordinates] = useState({
-    lat: 51.065487,
-    lng: 17.063,
+    lat: 51.1079,
+    lng: 17.0385,
   });
 
   useEffect(() => {
