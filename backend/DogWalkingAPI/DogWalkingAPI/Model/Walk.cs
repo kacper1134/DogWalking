@@ -32,11 +32,11 @@ namespace DogWalkingAPI.Model
         virtual public string? Content { get; set; }
 
         [Required]
-        virtual public ICollection<DogWalk> Dogs { get; set; }
+        virtual public ICollection<Dog> Dogs { get; set; }
 
         public Walk()
         {
-            Dogs = new HashSet<DogWalk>();
+            Dogs = new HashSet<Dog>();
         }
     }
 }

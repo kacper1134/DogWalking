@@ -102,8 +102,16 @@ namespace DogWalkingAPI.Controllers
             walk.StartTime = startTime;
             walk.EndTime = endTime;
 
-            // dodawanie do dogwalks trzeba zrobić
-            
+            foreach (var dogId in dogIds)
+            {
+                var dog = await _context.Dogs.FirstOrDefaultAsync(d => d.DogId == dogId);
+                if (dog == null)
+                {
+                    continue;
+                }
+                dog.Walks.Add(walk);
+                walk.Dogs.Add(dog);
+            }
 
             _context.Walks.Add(walk);
             try

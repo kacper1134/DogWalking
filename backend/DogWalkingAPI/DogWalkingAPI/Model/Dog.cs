@@ -17,6 +17,6 @@ namespace DogWalkingAPI.Model
         virtual public string ImageUrl { get; set; }
         //[ForeignKey("OwnerId")]
         //public User? Owner { get; set; }
-        virtual public ICollection<DogWalk> Walks { get; set; }
+        virtual public ICollection<Walk> Walks { get; set; }
     }
 }

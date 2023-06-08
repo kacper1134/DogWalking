@@ -30,7 +30,7 @@ namespace DogWalkingAPI.Model
 
         public DbSet<Walk> Walks { get; set; }
 
-        public DbSet<DogWalk> DogWalks { get; set; }
+        //public DbSet<DogWalk> DogWalks { get; set; }
 
         public DbSet<Availability> Availabilities { get; set; }
     }
