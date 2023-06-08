@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { AvailabilitiesData } from "./availabilitiesSlice";
 import { DogData } from "./dogsApiSlice";
+import { WalkDetailsType } from "./walkApiSlice";
 
 interface LoginCredentials {
   username: string;
@@ -38,9 +40,9 @@ export interface UserData {
   gender: 0 | 1;
   ratePerHour: number;
   dogs: DogData[];
-  ownerWalks: [];
-  walkerWalks: [];
-  availabilities: [];
+  ownerWalks: WalkDetailsType[];
+  walkerWalks: WalkDetailsType[];
+  availabilities: AvailabilitiesData[];
 }
 
 const baseQuery = fetchBaseQuery({

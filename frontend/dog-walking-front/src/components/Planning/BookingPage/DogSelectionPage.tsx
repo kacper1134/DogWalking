@@ -16,10 +16,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { RootState } from "../../../store";
 import { DogData } from "../../../store/dogsApiSlice";
-import { useGetUserQuery } from "../../../store/userApiSlice";
+import { useGetUserQuery, UserData } from "../../../store/userApiSlice";
 import { useCreateWalkMutation } from "../../../store/walkApiSlice";
 import { dogFontSize } from "../../Profile/DogSection/DogDimensions";
-import { exampleDogs } from "../../Profile/DogSection/DogExampleInfo";
 import { fontSize } from "../PlanningDimensions";
 import DogSelectionCard from "./DogSelectionCard";
 import { Walker } from "./WalkerPage";
@@ -27,7 +26,7 @@ import { Walker } from "./WalkerPage";
 interface DogSelectionPageProps {
   setCurrentStep: (value: React.SetStateAction<number>) => void;
   setWalkerIndex: React.Dispatch<React.SetStateAction<number>>;
-  walker: Walker;
+  walker: UserData;
 }
 
 const DogSelectionPage = ({

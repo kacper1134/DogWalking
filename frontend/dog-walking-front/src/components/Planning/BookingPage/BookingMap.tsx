@@ -8,8 +8,8 @@ import {
 } from "@react-google-maps/api";
 import { useEffect } from "react";
 import { useGeolocated } from "react-geolocated";
+import { UserData } from "../../../store/userApiSlice";
 import { fontSmallSize } from "../PlanningDimensions";
-import { Walker } from "./WalkerPage";
 
 interface BookingMapProps {
   currentCoordinates: { lat: number; lng: number };
@@ -20,7 +20,7 @@ interface BookingMapProps {
     }>
   >;
   circleRadius: number;
-  walkers: Walker[];
+  walkers: UserData[];
   walkerIndex: number;
   setWalkerIndex: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -91,7 +91,7 @@ const BookingMap = ({
       {walkers.map((walker, index) => (
         <MarkerF
           key={index}
-          position={{ lat: walker.position.lat, lng: walker.position.lng }}
+          position={{ lat: walker.availabilities[0].latitude, lng: walker.availabilities[0].longitude }}
           icon={{
             url: require("./walker-marker.svg").default,
             scaledSize: new google.maps.Size(25, 25),
@@ -105,7 +105,7 @@ const BookingMap = ({
               <Box w="200px">
                 <HStack pb="10px" fontSize={fontSmallSize}>
                   <Text fontWeight="bold">Phone number: </Text>
-                  <Text>{walker.phone ?? "Not provided"}</Text>
+                  <Text>{walker.phoneNumber ?? "Not provided"}</Text>
                 </HStack>
                 <HStack fontSize={fontSmallSize}>
                   <Text fontWeight="bold">Email: </Text>

@@ -13,6 +13,7 @@ import { fontSize, fontSmallSize } from "../PlanningDimensions";
 import parser from "html-react-parser";
 import { useEffect, useState } from "react";
 import PageSelector from "./PageSelector";
+import { UserData } from "../../../store/userApiSlice";
 
 export interface Walker {
   name: string;
@@ -24,15 +25,16 @@ export interface Walker {
 }
 
 interface WalkerPageProps {
-  walkerData: Walker;
+  walkerData: UserData;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const getAverageRating = (walker: Walker) => {
+const getAverageRating = (walker: UserData) => {
   var sum = 0;
-  walker.reviews.forEach((review) => (sum += review.rating));
+  const reviews = walker.walkerWalks;
+  reviews.forEach((review) => (sum += review.rating));
   if (sum === 0) return 0;
-  return sum / walker.reviews.length;
+  return sum / reviews.length;
 };
 
 const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
@@ -52,11 +54,11 @@ const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
     >
       <HStack h="20%">
         <Heading fontSize={fontSize} textStyle="p" mt="5px">
-          {walkerData.name + " " + walkerData.surname}
+          {walkerData.firstName + " " + walkerData.lastName}
         </Heading>
         <StarRating value={getAverageRating(walkerData)} />
       </HStack>
-      {walkerData.reviews.length > 0 && (
+      {walkerData.walkerWalks.length > 0 && (
         <Card
           width="80%"
           overflow="auto"
@@ -66,22 +68,22 @@ const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
           bg="primary.50"
         >
           <HStack>
-            <StarRating value={walkerData.reviews[currentPage].rating} />
+            <StarRating value={walkerData.walkerWalks[currentPage].rating} />
             <Spacer />
             <Text
               fontSize={fontSmallSize}
               fontWeight="bold"
               color="primary.700"
             >
-              {walkerData.reviews[currentPage].date.toLocaleString()}
+              {new Date(Date.now()).toLocaleString()}
             </Text>
           </HStack>
           <Text color="black" pt="10px">
-            {parser(walkerData.reviews[currentPage].content)}
+            {parser(walkerData.walkerWalks[currentPage].content)}
           </Text>
         </Card>
       )}
-      {walkerData.reviews.length === 0 && (
+      {walkerData.walkerWalks.length === 0 && (
         <>
           <Text fontSize={fontSize}>No reviews yet!</Text>
           <Spacer />
@@ -91,7 +93,7 @@ const WalkerPage = ({ walkerData, setCurrentStep }: WalkerPageProps) => {
         <PageSelector
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          totalNumberOfPages={walkerData.reviews.length}
+          totalNumberOfPages={walkerData.walkerWalks.length}
         />
         <Spacer />
         <Button

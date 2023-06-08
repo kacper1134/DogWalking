@@ -73,6 +73,11 @@ const walkApiSlice = createApi({
       }),
       invalidatesTags: ["WalkDetails"],
     }),
+    getWalkers: builder.query<UserData[], {lat: number, lng: number, maximumRange: number, startDate: string, endDate: string }>({
+      query: (params) => ({
+        url: `api/Availabilities/GetWalkers?lat=${params.lat}&lng=${params.lng}&maximumRange=${params.maximumRange}&startDate=${params.startDate}&endDate=${params.endDate}`
+      })
+    })
   }),
 });
 
@@ -83,5 +88,6 @@ export const {
   useGetWalkerWalksQuery,
   useGetOwnerWalksQuery,
   useGetWalkQuery,
+  useLazyGetWalkersQuery,
 } = walkApiSlice;
 export default walkApiSlice;
