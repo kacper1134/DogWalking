@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jZ8btjcpTW00/F2fwROidm4KKNCqMgYd3a8NKQNc44b4XzkAmObunX1gmoyiaQqCI2olLvpE+VxB0ILC1wkkrQ==",
+  "dgSpecHash": "lWI+PQeSI1YRe8PtNRZ+S8VQrr+iw26OczI29w8aOUSAXDycOy0XWh5t3pmkydKhAMwPyp3GRa5FhDlnYJvp1w==",
   "success": true,
   "projectFilePath": "E:\\repos\\DogWalking\\backend\\DogWalkingAPI\\DogWalkingAPI\\DogWalkingAPI.csproj",
   "expectedPackageFiles": [
@@ -106,6 +106,7 @@
     "C:\\Users\\macko\\.nuget\\packages\\runtime.ubuntu.14.04-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.14.04-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.16.04-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
+    "C:\\Users\\macko\\.nuget\\packages\\stripe.net\\41.19.0\\stripe.net.41.19.0.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\swashbuckle.aspnetcore\\6.2.3\\swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.2.3\\swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
     "C:\\Users\\macko\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.2.3\\swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",

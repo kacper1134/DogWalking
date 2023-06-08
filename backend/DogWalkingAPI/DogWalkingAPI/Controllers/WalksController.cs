@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DogWalkingAPI.Model;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
+using Stripe;
+using Newtonsoft.Json;
 
 namespace DogWalkingAPI.Controllers
 {
@@ -57,7 +60,7 @@ namespace DogWalkingAPI.Controllers
 
         // GET: api/Walks/GetReview
         [HttpGet("GetReview")]
-        public ActionResult<Review> GetReview(int walkId)
+        public ActionResult<Model.Review> GetReview(int walkId)
         {
             if (_context.Walks == null)
             {
@@ -68,7 +71,7 @@ namespace DogWalkingAPI.Controllers
             {
                 return NotFound();
             }
-            Review review = new Review();
+            Model.Review review = new Model.Review();
             review.Rating = walk.Rating;
             review.Content = walk.Content;
             return review;
@@ -103,7 +106,7 @@ namespace DogWalkingAPI.Controllers
             walk.StartTime = startTime;
             walk.EndTime = endTime;
 
-            foreach (var dogId in dogIds)
+            foreach (var dogId in walkInputDto.DogIds)
             {
                 var dog = await _context.Dogs.FirstOrDefaultAsync(d => d.DogId == dogId);
                 if (dog == null)
@@ -209,6 +212,69 @@ namespace DogWalkingAPI.Controllers
             }
             _currentWalks.Remove(walkId);
             return Ok();
+        }
+
+        [HttpGet("CreatePaymentIntent")]
+        public ActionResult CreatePaymentIntent()
+        {
+            StripeConfiguration.ApiKey = "sk_test_7mJuPfZsBzc3JkrANrFrcDqC";
+
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = 1099,
+                Currency = "usd",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                },
+            };
+            var service = new PaymentIntentService();
+            
+            var intent = service.Create(options);
+            return new JsonResult(new { client_secret = intent.ClientSecret });
+        }
+
+        [HttpPost("FinalizePayment")]
+        public async Task<IActionResult> FinalizePayment()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            const string endpointSecret = "whsec_873f784690f51f8f552cd2e79cb60360cd2c13edc5d2dc723be349122d40e1c1";
+            try
+            {
+                var stripeEvent = EventUtility.ParseEvent(json);
+                var signatureHeader = Request.Headers["Stripe-Signature"];
+
+                stripeEvent = EventUtility.ConstructEvent(json,
+                        signatureHeader, endpointSecret);
+
+                if (stripeEvent.Type == Events.PaymentIntentSucceeded)
+                {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
+                    // Then define and call a method to handle the successful payment intent.
+                    // handlePaymentIntentSucceeded(paymentIntent);
+                }
+                else if (stripeEvent.Type == Events.PaymentMethodAttached)
+                {
+                    var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
+                    // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                    // handlePaymentMethodAttached(paymentMethod);
+                }
+                else
+                {
+                    Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);
+                }
+                return Ok();
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine("Error: {0}", e.Message);
+                return BadRequest();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }
         }
 
         // GET: api/Walks/AddReview
