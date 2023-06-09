@@ -16,19 +16,46 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { RootState } from "../../../store";
 import { DogData } from "../../../store/dogsApiSlice";
-import { useGetUserQuery } from "../../../store/userApiSlice";
+import { useGetUserQuery, UserData } from "../../../store/userApiSlice";
 import { useCreateWalkMutation } from "../../../store/walkApiSlice";
 import { dogFontSize } from "../../Profile/DogSection/DogDimensions";
-import { exampleDogs } from "../../Profile/DogSection/DogExampleInfo";
 import { fontSize } from "../PlanningDimensions";
 import DogSelectionCard from "./DogSelectionCard";
-import { Walker } from "./WalkerPage";
 
 interface DogSelectionPageProps {
   setCurrentStep: (value: React.SetStateAction<number>) => void;
   setWalkerIndex: React.Dispatch<React.SetStateAction<number>>;
-  walker: Walker;
+  walker: UserData;
 }
+
+const getAvailableDatesFromAvailabilities = (walker: UserData): string[] => {
+  const availabilties = walker.availabilities;
+  const dates = new Set<string>();
+  availabilties.forEach((a) => dates.add(a.startTime.split("T")[0]));
+
+  return Array.from(dates);
+};
+
+const getAvailableHoursFromAvailabilities = (
+  walker: UserData
+): Map<string, string[]> => {
+  const availabilties = walker.availabilities;
+  const days = getAvailableDatesFromAvailabilities(walker);
+  const hours = new Map<string, Array<string>>();
+
+  days.forEach((day) => hours.set(day, []));
+  availabilties.forEach((a) =>
+    hours
+      .get(a.startTime.split("T")[0])!
+      .push(
+        a.startTime.split("T")[1].split(":").splice(0, 2).join(":") +
+          "-" +
+          a.endTime.split("T")[1].split(":").splice(0, 2).join(":")
+      )
+  );
+
+  return hours;
+};
 
 const DogSelectionPage = ({
   setCurrentStep,
@@ -47,20 +74,19 @@ const DogSelectionPage = ({
 
   const [checkedDogs, setCheckedDogs] = useState(dogs.map((_) => false));
 
-  const allChecked = checkedDogs.length === 0 ? false : checkedDogs.every(Boolean);
-  
+  const allChecked =
+    checkedDogs.length === 0 ? false : checkedDogs.every(Boolean);
+
   const isIndeterminate = checkedDogs.some(Boolean) && !allChecked;
 
-  const availableDates = ["2019-05-02", "2019-05-03", "2019-05-04"];
-  const availableHours: { [key: string]: string[] } = {
-    "2019-05-02": ["12:30-13:30", "14:30-15:30"],
-    "2019-05-03": ["10:30-13:30"],
-    "2019-05-04": ["9:30-13:30"],
-  };
+  const availableDates = getAvailableDatesFromAvailabilities(walker);
+
+  const availableHours: Map<string, string[]> =
+    getAvailableHoursFromAvailabilities(walker);
 
   const [selectedDay, setSelectedDay] = useState(availableDates[0]);
   const [selectedHour, setSelectedHour] = useState(
-    availableHours[selectedDay][0]
+    availableHours.get(selectedDay)![0]
   );
 
   const toast = useToast();
@@ -68,7 +94,7 @@ const DogSelectionPage = ({
 
   const [createWalkMutation] = useCreateWalkMutation();
 
-  const onSubmitHandler = () => {    
+  const onSubmitHandler = () => {
     const selectedDogs = dogs.filter((_, index) => checkedDogs[index]);
     if (selectedDogs.length === 0) {
       toast({
@@ -81,10 +107,10 @@ const DogSelectionPage = ({
     } else {
       createWalkMutation({
         ownerUsername: username,
-        day: selectedDay +"T00:00:00",
+        day: selectedDay + "T00:00:00",
         hourRange: selectedHour,
         dogIds: details?.dogs.map((d) => d.dogId)!,
-        walkerId: 9,
+        walkerId: walker.userId,
       }).then(() => {
         navigate("..");
         toast({
@@ -114,7 +140,7 @@ const DogSelectionPage = ({
                 fontSize={dogFontSize}
                 onChange={(e) => {
                   setSelectedDay(e.target.value);
-                  setSelectedHour(availableHours[e.target.value][0]);
+                  setSelectedHour(availableHours.get(e.target.value)![0]);
                 }}
               >
                 {availableDates.map((date, index) => (
@@ -135,7 +161,7 @@ const DogSelectionPage = ({
                 fontSize={dogFontSize}
                 onChange={(e) => setSelectedHour(e.target.value)}
               >
-                {availableHours[selectedDay].map((hour, index) => (
+                {availableHours.get(selectedDay)!.map((hour, index) => (
                   <option key={index} value={hour}>
                     {hour}
                   </option>

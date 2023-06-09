@@ -73,6 +73,24 @@ const walkApiSlice = createApi({
       }),
       invalidatesTags: ["WalkDetails"],
     }),
+    getWalkers: builder.query<UserData[], {lat: number, lng: number, maximumRange: number, startDate: string, endDate: string }>({
+      query: (params) => ({
+        url: `api/Availabilities/GetWalkers?lat=${params.lat}&lng=${params.lng}&maximumRange=${params.maximumRange}&startDate=${params.startDate}&endDate=${params.endDate}`
+      })
+    }),
+    getPaymentIntentSecret: builder.query<{client_secret: string}, string>({
+      query: (walkId) => ({
+        url: `api/Walks/CreatePaymentIntent?walkId=${walkId}`
+      })
+    }),
+    addReview: builder.mutation<void, WalkDetailsType>({
+      query: (params) => ({
+        url: `/api/Walks/${params.walkId}`,
+        body: params,
+        method: "PUT",
+      }),
+      invalidatesTags: ["WalkDetails"],
+    }),
   }),
 });
 
@@ -83,5 +101,8 @@ export const {
   useGetWalkerWalksQuery,
   useGetOwnerWalksQuery,
   useGetWalkQuery,
+  useLazyGetWalkersQuery,
+  useGetPaymentIntentSecretQuery,
+  useAddReviewMutation,
 } = walkApiSlice;
 export default walkApiSlice;

@@ -1,9 +1,8 @@
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PaymentWrapper from "./PaymentWrapper";
 
 const PaymentPage = () => {
-  const [searchParams] = useSearchParams();
-  const walkId = searchParams.get("walkId");
+  const { walkId } = useParams();
   return <PaymentWrapper walkId={+walkId!} />
 };
 

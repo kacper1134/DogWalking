@@ -16,8 +16,10 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Rating } from "react-simple-star-rating";
+import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
 import { DogData } from "../../../store/dogsApiSlice";
 import {
+  useAddReviewMutation,
   useDeleteWalkMutation,
   useGetWalkQuery,
   useStartWalkMutation,
@@ -47,14 +49,17 @@ const WalkDetails = () => {
   const { data: walkDetails } = useGetWalkQuery(walkId!);
   const [deleteWalkTrigger] = useDeleteWalkMutation();
   const [startWalkTrigger] = useStartWalkMutation();
+  const [saveReviewTrigger] = useAddReviewMutation();
 
   const [walkInfo, setWalkInfo] = useState<WalkDetailsType>();
   const [dogs, setDogs] = useState<DogData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
 
   const toast = useToast();
   const navigate = useNavigate();
+
 
   const showToast = (title: string, description: string) => {
     toast({
@@ -85,9 +90,13 @@ const WalkDetails = () => {
     });
   };
 
-  const saveReview = () => {
-    showToast("Review", "Review was saved sucessfully!");
-    navigate("../");
+  const saveReview = (review: string, rating: number) => {
+    const reviewDetails = {...walkDetails, content: review, rating: rating};
+    //@ts-ignore
+    saveReviewTrigger(reviewDetails).then(() => {
+      showToast("Review", "Review was saved sucessfully!");
+      navigate("../");
+    })
   };
 
   useEffect(() => {
@@ -97,6 +106,8 @@ const WalkDetails = () => {
       setWalkStatus(details);
       setWalkInfo(details);
       setDogs(details.dogs);
+      setReview(walkDetails.content);
+      setRating(walkDetails.rating);
     }
   }, [walkDetails]);
 
@@ -177,6 +188,8 @@ const WalkDetails = () => {
           review={review}
           setReview={setReview}
           saveReview={saveReview}
+          rating={rating}
+          setRating={setRating}
         />
       )}
       {walkInfo !== undefined && walkInfo?.status === "In progress" && (
@@ -191,12 +204,23 @@ interface DogCardProps {
 }
 
 const DogCard = ({ dog }: DogCardProps) => {
+  const getImage = useGetFirebaseImage();
+  const [image, setImage] = useState("");
+
+  useEffect(() => {
+    if (dog.imageUrl !== "" && dog.imageUrl !== "image") {
+      getImage(dog.imageUrl)
+        .then((url) => setImage(url))
+        .catch(() => setImage(""));
+    }
+  }, [getImage, dog.imageUrl]);
+  
   return (
     <Card bg="white" py="20px" px="20px" mx="20px" borderRadius="20px">
       <HStack h="100%">
         <Image
           src={
-            dog.imageUrl ??
+            image ??
             "https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
           }
           w={walksDetailsImageSize}
@@ -228,12 +252,13 @@ const DogCard = ({ dog }: DogCardProps) => {
 
 interface ReviewCardProps {
   review: string;
+  rating: number;
+  setRating: React.Dispatch<React.SetStateAction<number>>;
   setReview: React.Dispatch<React.SetStateAction<string>>;
-  saveReview: () => void;
+  saveReview: (review: string, rating: number) => void;
 }
 
-const ReviewCard = ({ review, setReview, saveReview }: ReviewCardProps) => {
-  const [rating, setRating] = useState(0);
+const ReviewCard = ({ review, setReview, rating, setRating, saveReview }: ReviewCardProps) => {
   return (
     <Card
       bg="white"
@@ -263,14 +288,14 @@ const ReviewCard = ({ review, setReview, saveReview }: ReviewCardProps) => {
       <TextEditor
         content={review}
         setContent={setReview}
-        fontSize={useBreakpointValue(dogFontSize)!}
+        fontSize={"15px"}
       />
       <Button
         colorScheme="primary"
         color="white"
         mt="20px"
         fontSize={walksDetailsFontSize}
-        onClick={saveReview}
+        onClick={() => saveReview(review, rating)}
       >
         Save
       </Button>

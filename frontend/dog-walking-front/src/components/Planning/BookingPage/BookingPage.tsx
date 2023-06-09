@@ -1,13 +1,16 @@
 import { Box, Card, Center, Heading, HStack } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RadiusSlider from "../AvailabityPage/RadiusSlider";
 import "react-datepicker/dist/react-datepicker.css";
 import DateRangePicker from "./DateRangePicker";
 import BookingMap from "./BookingMap";
 import { fontSize, headerFontSize } from "../PlanningDimensions";
 import WalkerPage from "./WalkerPage";
-import { WALKERS_MOCK_DATA } from "./WalkersMockData";
 import DogSelectionPage from "./DogSelectionPage";
+import { useLazyGetWalkersQuery } from "../../../store/walkApiSlice";
+import { UserData } from "../../../store/userApiSlice";
+import { RootState } from "../../../store";
+import { useSelector } from "react-redux";
 
 const BookingPage = () => {
   const [currentRadius, setCurrentRadius] = useState(100);
@@ -19,14 +22,60 @@ const BookingPage = () => {
   });
 
   const [walkerIndex, setWalkerIndex] = useState(-1);
-  const walkers = WALKERS_MOCK_DATA;
-
+  const [getWalkersTrigger] = useLazyGetWalkersQuery();
+  const [walkers, setWalkers] = useState<UserData[]>([]);
+  const username = useSelector((state: RootState) => state.auth.username);
   const [currentStep, setCurrentStep] = useState(1);
 
   const backgroundImageUrl =
     currentStep === 1
       ? "https://images.unsplash.com/photo-1494947665470-20322015e3a8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
       : "https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80";
+
+  useEffect(() => {
+    const updateWalkers = setTimeout(() => {
+      if (
+        currentCoordinates !== undefined &&
+        currentRadius !== undefined &&
+        startDate !== null
+      ) {
+        var sDate =
+          startDate.getFullYear() +
+          "-" +
+          (startDate.getMonth() + 1).toString().padStart(2, "0") +
+          "-" +
+          startDate.getDate().toString().padStart(2, "0") +
+          "T00:00:00";
+        var eDate =
+          endDate === null
+            ? startDate.getFullYear() +
+              "-" +
+              (startDate.getMonth() + 1).toString().padStart(2, "0") +
+              "-" +
+              startDate.getDate().toString().padStart(2, "0") +
+              "T23:59:00"
+            : endDate.getFullYear() +
+              "-" +
+              (endDate.getMonth() + 1).toString().padStart(2, "0") +
+              "-" +
+              endDate.getDate().toString().padStart(2, "0") +
+              "T00:00:00";
+              
+        getWalkersTrigger({
+          lat: currentCoordinates.lat,
+          lng: currentCoordinates.lng,
+          maximumRange: currentRadius,
+          startDate: sDate,
+          endDate: eDate,
+        }).then((result) => {
+          if (result.data !== undefined) {
+            setWalkers(result.data.filter(walker => walker.userName !== username));
+          }
+        });
+      }
+    }, 200);
+    return () => clearTimeout(updateWalkers);
+  }, [currentCoordinates, currentRadius, endDate, getWalkersTrigger, startDate, username]);
 
   return (
     <Box
