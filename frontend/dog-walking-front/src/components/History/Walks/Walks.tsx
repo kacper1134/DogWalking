@@ -38,7 +38,7 @@ import {
 } from "../../../store/walkApiSlice";
 
 export const setWalkStatus = (walk: WalkDetailsType) => {
-  walk.status = "Awaiting payment";
+  walk.status = "Completed";
 };
 
 const Walks = () => {

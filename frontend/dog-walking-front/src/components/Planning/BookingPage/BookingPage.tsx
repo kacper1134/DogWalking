@@ -60,7 +60,7 @@ const BookingPage = () => {
               "-" +
               endDate.getDate().toString().padStart(2, "0") +
               "T00:00:00";
-        console.log(eDate);      
+              
         getWalkersTrigger({
           lat: currentCoordinates.lat,
           lng: currentCoordinates.lng,

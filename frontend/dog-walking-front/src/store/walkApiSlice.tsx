@@ -82,7 +82,15 @@ const walkApiSlice = createApi({
       query: (walkId) => ({
         url: `api/Walks/CreatePaymentIntent?walkId=${walkId}`
       })
-    })
+    }),
+    addReview: builder.mutation<void, WalkDetailsType>({
+      query: (params) => ({
+        url: `/api/Walks/${params.walkId}`,
+        body: params,
+        method: "PUT",
+      }),
+      invalidatesTags: ["WalkDetails"],
+    }),
   }),
 });
 
@@ -95,5 +103,6 @@ export const {
   useGetWalkQuery,
   useLazyGetWalkersQuery,
   useGetPaymentIntentSecretQuery,
+  useAddReviewMutation,
 } = walkApiSlice;
 export default walkApiSlice;
