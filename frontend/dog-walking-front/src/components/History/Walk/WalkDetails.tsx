@@ -57,6 +57,7 @@ const WalkDetails = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
+
   const showToast = (title: string, description: string) => {
     toast({
       title,

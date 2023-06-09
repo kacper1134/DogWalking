@@ -21,7 +21,6 @@ builder.Services.AddDbContext<DataBaseContext>(options => options.UseLazyLoading
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    //x.JsonSerializerOptions.PropertyNamingPolicy = null;
 }) ;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

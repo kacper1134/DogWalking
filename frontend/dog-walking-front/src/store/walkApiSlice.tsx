@@ -77,6 +77,11 @@ const walkApiSlice = createApi({
       query: (params) => ({
         url: `api/Availabilities/GetWalkers?lat=${params.lat}&lng=${params.lng}&maximumRange=${params.maximumRange}&startDate=${params.startDate}&endDate=${params.endDate}`
       })
+    }),
+    getPaymentIntentSecret: builder.query<{client_secret: string}, string>({
+      query: (walkId) => ({
+        url: `api/Walks/CreatePaymentIntent?walkId=${walkId}`
+      })
     })
   }),
 });
@@ -89,5 +94,6 @@ export const {
   useGetOwnerWalksQuery,
   useGetWalkQuery,
   useLazyGetWalkersQuery,
+  useGetPaymentIntentSecretQuery,
 } = walkApiSlice;
 export default walkApiSlice;
