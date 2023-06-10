@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DogWalkingAPI.Model;
 using System.Security.Cryptography;
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
 
 namespace DogWalkingAPI.Controllers
@@ -47,11 +41,6 @@ namespace DogWalkingAPI.Controllers
         [HttpPost("Register")]
         public ActionResult<User> Register(User user)
         {
-            User newUser = new User();
-            //newUser.UserName = user.UserName;
-            //newUser.FirstName = user.FirstName;
-            //newUser.LastName = user.LastName;
-            //newUser.Email = user.Email;
             using (SHA256 hashFunction = SHA256.Create())
             {
                 byte[] hashValue = hashFunction.ComputeHash(Encoding.UTF8.GetBytes(user.UserPassword));
@@ -101,7 +90,6 @@ namespace DogWalkingAPI.Controllers
         [HttpPut("{username}")]
         public async Task<ActionResult<User>> EditUser(string username, User user)
         {
-            //username, firstName, lastName, description, gender, ratePerHour, email, phoneNumber
             if (username != user.UserName)
             {
                 return BadRequest();

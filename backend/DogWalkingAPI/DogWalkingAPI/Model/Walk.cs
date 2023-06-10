@@ -31,6 +31,15 @@ namespace DogWalkingAPI.Model
 
         virtual public string? Content { get; set; }
 
+        virtual public bool IsStarted { get; set; }
+
+        virtual public bool IsAwaitingPayment { get; set; }
+
+        virtual public bool IsDone { get; set; }
+
+        virtual public double Lat { get; set; }
+        virtual public double Lng { get; set; }
+
         [Required]
         virtual public ICollection<Dog> Dogs { get; set; }
 

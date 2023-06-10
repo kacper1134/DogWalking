@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 using Stripe;
 using Newtonsoft.Json;
+using DogWalkingAPI.Migrations;
 
 namespace DogWalkingAPI.Controllers
 {
@@ -18,12 +19,13 @@ namespace DogWalkingAPI.Controllers
     public class WalksController : ControllerBase
     {
         private readonly DataBaseContext _context;
-        private Dictionary<int, (double,double)> _currentWalks;
+        //private Dictionary<int, (double,double)> _currentWalks;
+        //CurrentWalksService _walkService;
 
         public WalksController(DataBaseContext context)
         {
             _context = context;
-            _currentWalks = new Dictionary<int, (double, double)>();
+            //_currentWalks = new Dictionary<int, (double, double)>();
         }
 
         // GET: api/Walks/GetAllWalkerWalks
@@ -84,7 +86,7 @@ namespace DogWalkingAPI.Controllers
         {
             if (_context.Walks == null)
             {
-                return Problem("Entity set 'DataBaseContext.Walks'  is null.");
+                return Problem("Entity set 'DataBaseContext.Walks' is null.");
             }
 
             Walk walk = new Walk();
@@ -141,43 +143,37 @@ namespace DogWalkingAPI.Controllers
         [HttpPost("StartWalk")]
         public ActionResult<(double, double)> StartWalk(int walkId, double lat, double lng)
         {
-            if (_currentWalks == null)
+            if (_context == null)
             {
                 return NotFound();
             }
-            _currentWalks[walkId] = (lat, lng);
+            var walk = _context.Walks.FirstOrDefault(w => w.WalkId == walkId);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+            walk.Lat = lat;
+            walk.Lng = lng;
+            walk.IsStarted = true;
+            _context.SaveChanges();
             return Ok();
         }
 
-        // GET: api/Walks/CurrentWalksPosition/{id}
-        [HttpGet("GetCurrentWalksPosition")]
-        public ActionResult<(double,double)> GetCurrentWalksPosition(int walkId)
+        // GET: api/Walks/CurrentWalkPosition/{id}
+        [HttpGet("GetCurrentWalkPosition")]
+        public ActionResult<Tuple<double, double>> GetCurrentWalkPosition(int walkId)
         {
-            if (_currentWalks.IsNullOrEmpty())
+            if (_context == null)
             {
                 return NotFound();
             }
-            if (_currentWalks.ContainsKey(walkId))
+            var walk = _context.Walks.FirstOrDefault(w => w.WalkId == walkId);
+            if (walk == null)
             {
-                return _currentWalks[walkId];
+                return NotFound("?");
             }
-            return NotFound();
-        }
 
-        // POST: api/Walks/GetCurrentWalksPosition/{id}
-        [HttpPost("CurrentWalksPosition")]
-        public ActionResult<(double, double)> UpdateCurrentWalksPosition(int walkId, double lat, double lng)
-        {
-            if (_currentWalks.IsNullOrEmpty())
-            {
-                return NotFound();
-            }
-            if (_currentWalks.ContainsKey(walkId))
-            {
-                _currentWalks[walkId] = (lat, lng);
-                return Ok();
-            }
-            return NotFound();
+            return Tuple.Create(walk.Lat, walk.Lng);
         }
 
         // GET: api/Walks/CancelWalk/{id}
@@ -204,13 +200,18 @@ namespace DogWalkingAPI.Controllers
 
         // GET: api/Walks/StopWalk/{id}
         [HttpPost("StopWalk")]
-        public ActionResult<IEnumerable<Walk>> StopWalk(int walkId) //TODO
+        public ActionResult<IEnumerable<Walk>> StopWalk(int walkId)
         {
-            if (_currentWalks.IsNullOrEmpty())
+            if (_context == null)
             {
                 return NotFound("No walk with given ID!");
             }
-            _currentWalks.Remove(walkId);
+            var walk = _context.Walks.FirstOrDefault(w => w.WalkId == walkId);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+            walk.IsAwaitingPayment = true;
             return Ok();
         }
 
@@ -250,19 +251,21 @@ namespace DogWalkingAPI.Controllers
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
-                    // Then define and call a method to handle the successful payment intent.
-                    // handlePaymentIntentSucceeded(paymentIntent);
+                    if (paymentIntent == null)
+                    {
+                        return NotFound();
+                    }
+                    int walkId = int.Parse(paymentIntent.Metadata["walkId"]);
+                    var walk = _context.Walks.FirstOrDefault(w => w.WalkId == walkId);
+                    if (walk == null)
+                    {
+                        return NotFound();
+                    }
+                    walk.IsDone = true;
                 }
                 else if (stripeEvent.Type == Events.PaymentMethodAttached)
                 {
                     var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
-                    // Then define and call a method to handle the successful attachment of a PaymentMethod.
-                    // handlePaymentMethodAttached(paymentMethod);
-                }
-                else
-                {
-                    Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);
                 }
                 return Ok();
             }
@@ -277,21 +280,23 @@ namespace DogWalkingAPI.Controllers
             }
         }
 
-        // GET: api/Walks/AddReview
-        //[HttpGet("AddReview")]
-        //public async Task<ActionResult<IEnumerable<Walk>>> AddReview(int id, double rating, string content)
-        //{
-        //    if (_context.Walks == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    User? walker = _context.Users?.FirstOrDefaultAsync(u => u.UserName == username).Result;
-        //    if (walker == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return walker.OwnerWalks.ToList();
-        //}
+       [HttpPost("AddReview")]
+        public async Task<ActionResult<IEnumerable<Walk>>> AddReview(int walkId, double rating, string content)
+        {
+            if (_context.Walks == null)
+            {
+                return NotFound();
+            }
+            var walk = await _context.Walks.FirstOrDefaultAsync(w => w.WalkId == walkId);
+            if (walk == null)
+            {
+                return NotFound();
+            }
+            walk.Rating = rating;
+            walk.Content = content;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
 
 
         // GET: api/Walks

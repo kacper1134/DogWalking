@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace DogWalkingAPI.Model
@@ -27,6 +29,7 @@ namespace DogWalkingAPI.Model
         virtual public double RatePerHour { get; set; }
         virtual public int NrOfWalks { get; set; }
         virtual public ICollection<Dog> Dogs { get; set; }
+        [JsonIgnore]
         virtual public ICollection<Availability> Availabilities { get; set; }
         virtual public ICollection<Walk> WalkerWalks { get; set; }
         virtual public ICollection<Walk> OwnerWalks { get; set; }
