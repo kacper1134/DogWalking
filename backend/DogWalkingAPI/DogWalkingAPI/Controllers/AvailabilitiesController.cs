@@ -91,7 +91,7 @@ namespace DogWalkingAPI.Controllers
                 return NotFound();
             }
             var availabilities = _context.Availabilities.ToList();
-            var foundUserIds = _context.Availabilities
+            var foundUserIds = availabilities
                 .Where(a => IsInRange(lat, lng, maximumRange, a.Latitude, a.Longitude, a.Radius) && IsInTimeRange(startDate, endDate, a.StartTime, a.EndTime)).Select(a => a.WalkerId);
             List<User> users = new List<User>();
             foreach (var userId in foundUserIds) {
@@ -100,13 +100,22 @@ namespace DogWalkingAPI.Controllers
                     users.Add(User);
                 }
             }
-            return users;
+            return users.ToHashSet<User>();
         }
 
         bool IsInRange(double x1, double y1, double r1, double x2, double y2, double r2)
         {
-            double d = Math.Sqrt((x1 - x2) * (x1 - x2)
-                            + (y1 - y2) * (y1 - y2));
+            double earthRadius = 6371000;  // promień Ziemi w metrach
+            double dLat = DegreesToRadians(x2 - x1);
+            double dLon = DegreesToRadians(y2 - y1);
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(DegreesToRadians(x1)) * Math.Cos(DegreesToRadians(x2)) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+            double d = earthRadius * c;
 
             if (d <= r1 - r2)
             {
@@ -128,6 +137,11 @@ namespace DogWalkingAPI.Controllers
             {
                 return false;
             }
+        }
+
+        public static double DegreesToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180;
         }
 
         bool IsInTimeRange(DateTime startTime1, DateTime endTime1, DateTime startTime2, DateTime endTime2)

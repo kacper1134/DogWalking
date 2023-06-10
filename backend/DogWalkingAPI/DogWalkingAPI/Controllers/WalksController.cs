@@ -216,9 +216,11 @@ namespace DogWalkingAPI.Controllers
         }
 
         [HttpGet("CreatePaymentIntent")]
-        public ActionResult CreatePaymentIntent()
+        public ActionResult CreatePaymentIntent(string walkId)
         {
-            StripeConfiguration.ApiKey = "sk_test_7mJuPfZsBzc3JkrANrFrcDqC";
+            StripeConfiguration.ApiKey = "";
+            var metadata = new Dictionary<string, string>();
+            metadata.Add("walkId", walkId);
 
             var options = new PaymentIntentCreateOptions
             {
@@ -228,6 +230,7 @@ namespace DogWalkingAPI.Controllers
                 {
                     Enabled = true,
                 },
+                Metadata = metadata,
             };
             var service = new PaymentIntentService();
             
@@ -239,7 +242,7 @@ namespace DogWalkingAPI.Controllers
         public async Task<IActionResult> FinalizePayment()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            const string endpointSecret = "whsec_873f784690f51f8f552cd2e79cb60360cd2c13edc5d2dc723be349122d40e1c1";
+            const string endpointSecret = "";
             try
             {
                 var stripeEvent = EventUtility.ParseEvent(json);
