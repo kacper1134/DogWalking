@@ -2,7 +2,11 @@ import { Card, Center, Spinner, Text } from "@chakra-ui/react";
 import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
-import { WalkDetailsType } from "../../../store/walkApiSlice";
+import {
+  useLazyGetCurrentWalkPositionQuery,
+  useUpdateWalkPositionMutation,
+  WalkDetailsType,
+} from "../../../store/walkApiSlice";
 import {
   mapCardWidth,
   walkDetailsCardHeight,
@@ -13,7 +17,10 @@ interface WalkMapProps {
   walk: WalkDetailsType;
 }
 
-const WalkMap = ({walk}: WalkMapProps) => {
+const WalkMap = ({ walk }: WalkMapProps) => {
+  const [getCurrentCoordinatesTrigger] = useLazyGetCurrentWalkPositionQuery();
+  const [updateCurrentCoordinatesTrigger] = useUpdateWalkPositionMutation();
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY ?? "",
   });
@@ -31,25 +38,42 @@ const WalkMap = ({walk}: WalkMapProps) => {
   });
 
   useEffect(() => {
-    setCurrentCoordinates({
-      lat: coords?.latitude ?? 10,
-      lng: coords?.longitude ?? 10,
-    });
-  }, [coords, setCurrentCoordinates]);
-  
+    getCurrentCoordinatesTrigger(walk.walkId).then((result) => {
+      if(result.data !== undefined)
+      {
+        setCurrentCoordinates({
+          lat: result.data?.item1!,
+          lng: result.data?.item2!,
+        });
+      }
+    })
+    
+  }, [coords, getCurrentCoordinatesTrigger, setCurrentCoordinates, walk.walkId]);
+
   useEffect(() => {
     const updateCords = setInterval(() => {
-        const lngIncrement = Math.random() / 500000;
-        const latIncrement = Math.random() / 500000;
-        setCurrentCoordinates(prev => {
+      const lngIncrement = Math.random() / 500000;
+      const latIncrement = Math.random() / 500000;
+
+      getCurrentCoordinatesTrigger(walk.walkId).then((result) => {
+        if (result.data !== undefined) {
+          updateCurrentCoordinatesTrigger({
+            walkId: walk.walkId,
+            lat: result.data?.item1! + latIncrement,
+            lng: result.data?.item2! + lngIncrement,
+          });
+
+          setCurrentCoordinates(() => {
             return {
-                lat: prev.lat + latIncrement,
-                lng: prev.lng + lngIncrement,
-            }
-        })
-    }, 100)
+              lat: result.data?.item1!,
+              lng: result.data?.item2!,
+            };
+          });
+        }
+      });
+    }, 500);
     return () => clearInterval(updateCords);
-  }) 
+  });
 
   if (!isLoaded)
     return (

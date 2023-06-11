@@ -22,6 +22,11 @@ export interface WalkDetailsType {
   content: string;
   dogs: DogData[];
   status: "Planned" | "In progress" | "Awaiting payment" | "Completed";
+  isAwaitingPayment: boolean;
+  isStarted: boolean;
+  isDone: boolean;
+  lat: number;
+  lng: number;
 }
 
 const baseQuery = fetchBaseQuery({
@@ -68,10 +73,28 @@ const walkApiSlice = createApi({
     }),
     startWalk: builder.mutation<void, {walkId: string, lat: number, lng: number}>({
       query: (params) => ({
-        url: `/api/Walks/?walkId=${params.walkId}?lat=${params.lat}?lng=${params.lng}`,
-        method: "Delete",
+        url: `/api/Walks/StartWalk?walkId=${params.walkId}&lat=${params.lat}&lng=${params.lng}`,
+        method: "Post",
       }),
       invalidatesTags: ["WalkDetails"],
+    }),
+    stopWalk: builder.mutation<void, {walkId: string}>({
+      query: (params) => ({
+        url: `/api/Walks/StopWalk?walkId=${params.walkId}`,
+        method: "Post",
+      }),
+      invalidatesTags: ["WalkDetails"],
+    }),
+    getCurrentWalkPosition: builder.query<{item1: number, item2: number}, number>({
+      query: (walkId) => ({
+        url: `/api/Walks/GetCurrentWalkPosition?walkId=${walkId}`
+      })
+    }),
+    updateWalkPosition: builder.mutation<void, {walkId: number, lat: number, lng: number}>({
+      query: (params) => ({
+        url: `/api/Walks/UpdateWalkPosition?walkId=${params.walkId}&lat=${params.lat}&lng=${params.lng}`,
+        method: "Patch"
+      })
     }),
     getWalkers: builder.query<UserData[], {lat: number, lng: number, maximumRange: number, startDate: string, endDate: string }>({
       query: (params) => ({
@@ -101,8 +124,11 @@ export const {
   useGetWalkerWalksQuery,
   useGetOwnerWalksQuery,
   useGetWalkQuery,
+  useLazyGetCurrentWalkPositionQuery,
   useLazyGetWalkersQuery,
   useGetPaymentIntentSecretQuery,
   useAddReviewMutation,
+  useUpdateWalkPositionMutation,
+  useStopWalkMutation,
 } = walkApiSlice;
 export default walkApiSlice;

@@ -176,6 +176,26 @@ namespace DogWalkingAPI.Controllers
             return Tuple.Create(walk.Lat, walk.Lng);
         }
 
+        [HttpPatch("UpdateWalkPosition")]
+        public async Task<IActionResult> UpdateWalkPosition(int walkId, double lat ,double lng)
+        {
+            var walk = await _context.Walks.FindAsync(walkId);
+
+            if (walk == null)
+            {
+                return NotFound();
+            }
+
+            walk.Lat = lat;
+
+            walk.Lng = lng;
+            
+            _context.Entry(walk).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // GET: api/Walks/CancelWalk/{id}
         [HttpPost("CancelWalk")]
         public ActionResult<IEnumerable<Walk>> CancelWalk(int walkId)
@@ -212,6 +232,7 @@ namespace DogWalkingAPI.Controllers
                 return NotFound();
             }
             walk.IsAwaitingPayment = true;
+            _context.SaveChanges();
             return Ok();
         }
 
@@ -265,6 +286,7 @@ namespace DogWalkingAPI.Controllers
                         return NotFound();
                     }
                     walk.IsDone = true;
+                    _context.SaveChanges();
                 }
                 else if (stripeEvent.Type == Events.PaymentMethodAttached)
                 {
