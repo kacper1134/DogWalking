@@ -17,6 +17,7 @@ import {
   SimpleGrid,
   useBreakpointValue,
   Icon,
+  Heading,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { dogImageRadius } from "../../Profile/DogSection/DogDimensions";
@@ -36,9 +37,14 @@ import {
   useGetWalkerWalksQuery,
   WalkDetailsType,
 } from "../../../store/walkApiSlice";
+import { headerFontSize } from "../../Planning/PlanningDimensions";
 
 export const setWalkStatus = (walk: WalkDetailsType) => {
-  walk.status = "Completed";
+  if(!walk.isStarted && !walk.isAwaitingPayment && !walk.isDone) walk.status = "Planned";
+  else if(walk.isDone) walk.status = "Completed";
+  else if(walk.isAwaitingPayment) walk.status = "Awaiting payment";
+  else if(walk.isStarted) walk.status = "In progress";
+  else walk.status = "Planned";
 };
 
 const Walks = () => {
@@ -158,7 +164,7 @@ const WalksHistory = ({ owner, walks }: WalksHistoryProps) => {
   useEffect(() => {
     setCurrentPage(0);
   }, [itemsPerPage, selectedFilter]);
-
+  
   return (
     <VStack h="60vh">
       <HStack alignSelf="flex-end">
@@ -194,6 +200,7 @@ const WalksHistory = ({ owner, walks }: WalksHistoryProps) => {
           )}
         </Box>
       </HStack>
+      {displayedWalks.length === 0 && <Heading color="primary.600" fontSize={headerFontSize}>There are not walks here yet!</Heading>}
       <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacingY={10} py="10px">
         {displayedWalks.map((walk, index) => (
           <Walk key={index} walk={walk} owner={owner} />

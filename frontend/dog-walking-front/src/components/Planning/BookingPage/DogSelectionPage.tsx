@@ -29,12 +29,20 @@ interface DogSelectionPageProps {
 }
 
 const getAvailableDatesFromAvailabilities = (walker: UserData): string[] => {
-  const availabilties = walker.availabilities;
+  const availabilities = walker.availabilities;
+  const currentDate = new Date().toISOString().split("T")[0];
   const dates = new Set<string>();
-  availabilties.forEach((a) => dates.add(a.startTime.split("T")[0]));
+
+  availabilities.forEach((a) => {
+    const availabilityDate = a.startTime.split("T")[0];
+    if (availabilityDate >= currentDate) {
+      dates.add(availabilityDate);
+    }
+  });
 
   return Array.from(dates);
 };
+
 
 const getAvailableHoursFromAvailabilities = (
   walker: UserData
@@ -72,11 +80,17 @@ const DogSelectionPage = ({
     }
   }, [details]);
 
+  useEffect(() => {
+    if (dogs != null) {
+      setCheckedDogs(dogs.map((_) => false));
+    }
+  }, [dogs])
+
   const [checkedDogs, setCheckedDogs] = useState(dogs.map((_) => false));
 
   const allChecked =
     checkedDogs.length === 0 ? false : checkedDogs.every(Boolean);
-
+  
   const isIndeterminate = checkedDogs.some(Boolean) && !allChecked;
 
   const availableDates = getAvailableDatesFromAvailabilities(walker);

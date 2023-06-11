@@ -14,15 +14,18 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
 import { Rating } from "react-simple-star-rating";
 import useGetFirebaseImage from "../../../hooks/useGetFirebaseImage";
+import { RootState } from "../../../store";
 import { DogData } from "../../../store/dogsApiSlice";
 import {
   useAddReviewMutation,
   useDeleteWalkMutation,
   useGetWalkQuery,
   useStartWalkMutation,
+  useStopWalkMutation,
   WalkDetailsType,
 } from "../../../store/walkApiSlice";
 import TextEditor from "../../common/TextEditor";
@@ -41,14 +44,17 @@ import {
 } from "../HistoryDimensions";
 import { setWalkStatus } from "../Walks/Walks";
 import WalkMap from "./WalkMap";
+import parser from "html-react-parser";
 
 const WalkDetails = () => {
   const { walkId } = useParams();
+  const username = useSelector((state: RootState) => state.auth.username);
   const backgroundImageUrl =
     "https://images.unsplash.com/photo-1541952188281-d960f03c5ebd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80";
   const { data: walkDetails } = useGetWalkQuery(walkId!);
   const [deleteWalkTrigger] = useDeleteWalkMutation();
   const [startWalkTrigger] = useStartWalkMutation();
+  const [stopWalkTrigger] = useStopWalkMutation();
   const [saveReviewTrigger] = useAddReviewMutation();
 
   const [walkInfo, setWalkInfo] = useState<WalkDetailsType>();
@@ -60,6 +66,7 @@ const WalkDetails = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
+  const [isOwner, setIsOwner] = useState(username === walkInfo?.owner.userName);
 
   const showToast = (title: string, description: string) => {
     toast({
@@ -82,21 +89,28 @@ const WalkDetails = () => {
   const startWalk = () => {
     startWalkTrigger({
       walkId: "" + walkDetails?.walkId!,
-      lat: 51.1079,
-      lng: 17.0385,
+      lat: walkDetails?.walker.availabilities[0].latitude!,
+      lng: walkDetails?.walker.availabilities[0].longitude!,
     }).then(() => {
       showToast("Start walk", "Walk was started sucessfully!");
       navigate("../");
     });
   };
 
+  const stopWalk = () => {
+    stopWalkTrigger({ walkId: "" + walkDetails?.walkId! }).then(() => {
+      showToast("Stop walk", "Walk was stopped sucessfully!");
+      navigate("../");
+    });
+  };
+
   const saveReview = (review: string, rating: number) => {
-    const reviewDetails = {...walkDetails, content: review, rating: rating};
+    const reviewDetails = { ...walkDetails, content: review, rating: rating };
     //@ts-ignore
     saveReviewTrigger(reviewDetails).then(() => {
       showToast("Review", "Review was saved sucessfully!");
       navigate("../");
-    })
+    });
   };
 
   useEffect(() => {
@@ -111,6 +125,10 @@ const WalkDetails = () => {
     }
   }, [walkDetails]);
 
+  useEffect(() => {
+    setIsOwner(username === walkInfo?.owner.userName);
+  }, [username, walkInfo?.owner.userName]);
+  
   return (
     <Flex
       flexGrow="10000"
@@ -171,13 +189,16 @@ const WalkDetails = () => {
                 totalNumberOfPages={dogs.length}
               />
             </Box>
-            {walkInfo?.status === "Awaiting payment" && (
+            {walkInfo?.status === "Awaiting payment" && isOwner && (
               <PaymentButton walkId={walkInfo.walkId} />
+            )}
+            {walkInfo?.status === "In progress" && !isOwner && (
+              <StopWalkButton stopWalk={stopWalk} />
             )}
             {walkInfo?.status === "Planned" && (
               <HStack>
                 <CancelWalkButton cancelWalk={cancelWalk} />
-                <StartWalkButton startWalk={startWalk} />
+                {!isOwner && <StartWalkButton startWalk={startWalk} />}
               </HStack>
             )}
           </VStack>
@@ -186,6 +207,7 @@ const WalkDetails = () => {
       {walkInfo !== undefined && walkInfo?.status === "Completed" && (
         <ReviewCard
           review={review}
+          isOwner={isOwner}
           setReview={setReview}
           saveReview={saveReview}
           rating={rating}
@@ -214,7 +236,7 @@ const DogCard = ({ dog }: DogCardProps) => {
         .catch(() => setImage(""));
     }
   }, [getImage, dog.imageUrl]);
-  
+
   return (
     <Card bg="white" py="20px" px="20px" mx="20px" borderRadius="20px">
       <HStack h="100%">
@@ -253,12 +275,20 @@ const DogCard = ({ dog }: DogCardProps) => {
 interface ReviewCardProps {
   review: string;
   rating: number;
+  isOwner: boolean;
   setRating: React.Dispatch<React.SetStateAction<number>>;
   setReview: React.Dispatch<React.SetStateAction<string>>;
   saveReview: (review: string, rating: number) => void;
 }
 
-const ReviewCard = ({ review, setReview, rating, setRating, saveReview }: ReviewCardProps) => {
+const ReviewCard = ({
+  review,
+  setReview,
+  rating,
+  setRating,
+  saveReview,
+  isOwner,
+}: ReviewCardProps) => {
   return (
     <Card
       bg="white"
@@ -276,6 +306,7 @@ const ReviewCard = ({ review, setReview, rating, setRating, saveReview }: Review
         Review:
       </Text>
       <Rating
+        readonly={!isOwner}
         emptyStyle={{ display: "flex" }}
         fillStyle={{ display: "-webkit-inline-box" }}
         style={{ marginBottom: "20px" }}
@@ -285,17 +316,15 @@ const ReviewCard = ({ review, setReview, rating, setRating, saveReview }: Review
         onClick={(value) => setRating(value)}
         size={useBreakpointValue(walksDetailsRatingSize)!}
       />
-      <TextEditor
-        content={review}
-        setContent={setReview}
-        fontSize={"15px"}
-      />
+      {isOwner && <TextEditor content={review} setContent={setReview} fontSize={"15px"} />}
+      {!isOwner && <Text color="black" pt="10px">{parser(review === null ? "" : review)}</Text>}
       <Button
         colorScheme="primary"
         color="white"
         mt="20px"
         fontSize={walksDetailsFontSize}
         onClick={() => saveReview(review, rating)}
+        isDisabled={!isOwner}
       >
         Save
       </Button>
@@ -351,6 +380,23 @@ const StartWalkButton = ({ startWalk }: StartWalkButtonProps) => {
       onClick={startWalk}
     >
       Start Walk
+    </Button>
+  );
+};
+
+interface StopWalkButtonProps {
+  stopWalk: () => void;
+}
+
+const StopWalkButton = ({ stopWalk }: StopWalkButtonProps) => {
+  return (
+    <Button
+      colorScheme="green"
+      color="white"
+      fontSize={walksDetailsFontSize}
+      onClick={stopWalk}
+    >
+      Stop Walk
     </Button>
   );
 };
